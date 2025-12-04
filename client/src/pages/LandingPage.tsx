@@ -4,15 +4,18 @@ import { DocumentShowcase } from "../components/landingPage/DocumentShowcase";
 import { FeatureList } from "../components/landingPage/FeatureList";
 import { Footer } from "../components/landingPage/Footer";
 
+import SKLogo from "../assets/icons/sk_logo.png";
+
 export function LandingPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-[#203972] rounded-md flex items-center justify-center mr-3">
-              <span className="text-white font-serif font-bold text-lg">O</span>
+            <div className="w-10.5 h-10.5 bg-[#203972] rounded-full flex items-center justify-center mr-2">
+              <img src={SKLogo} className="w-10 h-10" />
             </div>
+
             <span className="text-xl font-bold text-[#203972] font-serif tracking-tight">
               OpenSK
             </span>

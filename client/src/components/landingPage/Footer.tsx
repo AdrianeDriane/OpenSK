@@ -1,4 +1,6 @@
-import { Building2, Facebook, Twitter, Mail } from "lucide-react";
+import { Facebook, Twitter, Mail } from "lucide-react";
+
+import SKLogo from "../../assets/icons/sk_logo.png";
 
 export function Footer() {
   return (
@@ -7,8 +9,8 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center mr-3">
-                <Building2 className="w-6 h-6 text-[#203972]" />
+              <div className="w-10.5 h-10.5 bg-[#db1d34] rounded-full flex items-center justify-center mr-3">
+                <img src={SKLogo} className="w-10 h-10" />
               </div>
               <span className="text-2xl font-bold font-serif tracking-wide">
                 OpenSK
