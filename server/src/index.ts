@@ -1,6 +1,8 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import cors from "cors";
 import { ENV } from "./config/env";
+import passport from "./config/passport";
+import authRoutes from "./routes/auth.routes";
 
 const app = express();
 
@@ -8,21 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Test route
-app.get("/api/health", (req: Request, res: Response) => {
-  res.json({
-    status: "ok",
-    message: "OpenSK backend is running",
-    timestamp: new Date().toISOString(),
-  });
-});
-
-// Root route (optional)
-app.get("/", (req: Request, res: Response) => {
-  res.send("OpenSK backend (Express + TypeScript) is up.");
-});
+app.use(passport.initialize());
 
 const port = Number(ENV.PORT);
+
+app.use("/api/auth", authRoutes);
 
 app.listen(port, () => {
   console.log(`🚀 OpenSK server running on http://localhost:${port}`);
