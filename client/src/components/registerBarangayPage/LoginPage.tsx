@@ -68,7 +68,7 @@ export function LoginPage() {
                 </div>
 
                 <div className="bg-blue-50 p-4 rounded-lg flex items-start">
-                  <ShieldCheck className="w-5 h-5 text-[#203972] mt-0.5 mr-3 flex-shrink-0" />
+                  <ShieldCheck className="w-5 h-5 text-[#203972] mt-0.5 mr-3 " />
                   <p className="text-sm text-[#203972]">
                     For security, please use your official government-issued
                     email address if available.

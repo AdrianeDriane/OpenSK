@@ -42,7 +42,7 @@ export function RegisterBarangayPage() {
         />
 
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-100 relative min-h-[500px] flex flex-col">
-          <div className="p-8 flex-grow">
+          <div className="p-8">
             <AnimatePresence mode="wait">
               {currentStep === 1 && (
                 <FormStep

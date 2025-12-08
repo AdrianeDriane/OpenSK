@@ -3,10 +3,13 @@ import { Hero } from "../components/landingPage/Hero";
 import { DocumentShowcase } from "../components/landingPage/DocumentShowcase";
 import { FeatureList } from "../components/landingPage/FeatureList";
 import { Footer } from "../components/landingPage/Footer";
+import { useNavigate } from "react-router-dom";
 
 import SKLogo from "../assets/icons/sk_logo.png";
 
 export function LandingPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
       <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
@@ -49,6 +52,7 @@ export function LandingPage() {
               whileTap={{
                 scale: 0.95,
               }}
+              onClick={() => navigate("/login")}
               className="text-[#203972] font-medium hover:text-[#1a2e5a] transition-colors cursor-pointer"
             >
               Login
@@ -60,6 +64,7 @@ export function LandingPage() {
               whileTap={{
                 scale: 0.95,
               }}
+              onClick={() => navigate("/register")}
               className="bg-[#203972] text-white px-5 py-2 rounded-md font-medium hover:bg-[#1a2e5a] transition-colors shadow-sm cursor-pointer"
             >
               Register Barangay
