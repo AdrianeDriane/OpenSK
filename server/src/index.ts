@@ -1,7 +1,9 @@
+import "./config/passport"; // important
+import passport from "passport"; // the actual passport instance
+
 import express from "express";
 import cors from "cors";
 import { ENV } from "./config/env";
-import passport from "./config/passport";
 import authRoutes from "./routes/auth.routes";
 
 const app = express();

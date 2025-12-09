@@ -79,7 +79,7 @@ model User {
   email       String   @unique
   verified    Boolean
   createdAt   DateTime?
-  googleId    Int?     @unique
+  googleId    String?     @unique
 
   roleId      Int
   barangayId  Int?

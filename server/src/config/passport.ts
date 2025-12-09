@@ -26,7 +26,7 @@ passport.use(
               email,
               firstName: profile.name?.givenName || "",
               lastName: profile.name?.familyName || "",
-              googleId: Number(profile.id),
+              googleId: profile.id,
               roleId: 1, // SK official
               verified: false,
             },
