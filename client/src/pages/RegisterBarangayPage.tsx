@@ -11,18 +11,35 @@ import {
   User,
 } from "lucide-react";
 
+interface AuthUser {
+  id: number;
+  email: string;
+  roleId: number;
+  verified: boolean;
+  firstName: string;
+  lastName: string;
+  googleId: string;
+  barangayId: number | null;
+  iat: number;
+  exp: number;
+}
+
 import SKLogo from "../assets/icons/sk_logo.png";
 
 export function RegisterBarangayPage() {
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
     if (!token) return;
 
-    const payload = JSON.parse(atob(token.split(".")[1]));
+    const payload: AuthUser = JSON.parse(atob(token.split(".")[1]));
 
     if (payload.verified) {
       window.location.href = "/dashboard";
     }
+
+    setAuthUser(payload);
   }, []);
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -68,8 +85,9 @@ export function RegisterBarangayPage() {
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#203972] focus:border-[#203972] outline-none transition-colors"
-                        placeholder="Juan"
+                        value={authUser?.firstName || ""}
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
                       />
                     </div>
                     <div className="col-span-2 md:col-span-1">
@@ -78,8 +96,9 @@ export function RegisterBarangayPage() {
                       </label>
                       <input
                         type="text"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#203972] focus:border-[#203972] outline-none transition-colors"
-                        placeholder="Dela Cruz"
+                        value={authUser?.lastName || ""}
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
                       />
                     </div>
                     <div className="col-span-2">
@@ -88,8 +107,9 @@ export function RegisterBarangayPage() {
                       </label>
                       <input
                         type="email"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-[#203972] focus:border-[#203972] outline-none transition-colors"
-                        placeholder="juan.delacruz@sk.gov.ph"
+                        value={authUser?.email || ""}
+                        disabled
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-500 cursor-not-allowed"
                       />
                     </div>
                     <div className="col-span-2">

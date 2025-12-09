@@ -23,6 +23,10 @@ router.get(
         email: req.user.email,
         roleId: req.user.roleId,
         verified: req.user.verified,
+        firstName: req.user.firstName,
+        lastName: req.user.lastName,
+        barangayId: req.user.barangayId,
+        googleId: req.user.googleId,
       },
       ENV.JWT_SECRET!,
       { expiresIn: "7d" }

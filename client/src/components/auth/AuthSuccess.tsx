@@ -6,7 +6,6 @@ export default function AuthSuccess() {
     const token = params.get("token");
 
     if (!token) {
-      console.error("No token found in URL");
       window.location.href = "/login";
       return;
     }
@@ -17,8 +16,11 @@ export default function AuthSuccess() {
     // Decode the JWT payload
     const payload = JSON.parse(atob(token.split(".")[1]));
 
-    // Redirect based on 'verified'
-    if (payload.verified === true) {
+    // Store user info in localStorage
+    localStorage.setItem("auth_user", JSON.stringify(payload));
+
+    // Redirect based on verification
+    if (payload.verified) {
       window.location.href = "/dashboard";
     } else {
       window.location.href = "/register";
@@ -26,8 +28,8 @@ export default function AuthSuccess() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center min-h-screen text-gray-700">
-      Redirecting, please wait...
+    <div className="min-h-screen flex items-center justify-center">
+      Authenticating...
     </div>
   );
 }
