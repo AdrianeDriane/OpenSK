@@ -26,6 +26,10 @@ export function LoginPage() {
             >
               <div className="space-y-4 mt-6">
                 <motion.button
+                  onClick={() => {
+                    window.location.href =
+                      "http://localhost:4000/api/auth/google";
+                  }}
                   whileHover={{
                     scale: 1.02,
                     backgroundColor: "#f9fafb",

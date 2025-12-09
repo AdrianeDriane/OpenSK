@@ -4,6 +4,10 @@ import { Routes, Route } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./components/registerBarangayPage/LoginPage";
 import { RegisterBarangayPage } from "./pages/RegisterBarangayPage";
+import AuthSuccess from "./components/auth/AuthSuccess";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { PublicRoute } from "./components/auth/PublicRoute";
+import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 
 function App() {
   return (
@@ -12,10 +16,37 @@ function App() {
       <Route path="/" element={<LandingPage />} />
 
       {/* Register Barangay */}
-      <Route path="/register" element={<RegisterBarangayPage />} />
 
       {/* Login */}
-      <Route path="/login" element={<LoginPage />} />
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <LoginPage />
+          </PublicRoute>
+        }
+      />
+
+      <Route path="/auth/success" element={<AuthSuccess />} />
+
+      {/* Protected Routes */}
+      <Route
+        path="/register"
+        element={
+          <VerificationOnlyRoute>
+            <RegisterBarangayPage />
+          </VerificationOnlyRoute>
+        }
+      />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <div>Dashboard</div>
+          </ProtectedRoute>
+        }
+      />
 
       {/* Default route (change as needed) */}
       {/* <Route path="*" element={<RegisterBarangayPage />} /> */}
@@ -24,4 +55,3 @@ function App() {
 }
 
 export default App;
-

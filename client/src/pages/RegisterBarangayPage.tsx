@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StepIndicator } from "../components/registerBarangayPage/StepIndicator";
 import { FormStep } from "../components/registerBarangayPage/FormStep";
@@ -14,6 +14,17 @@ import {
 import SKLogo from "../assets/icons/sk_logo.png";
 
 export function RegisterBarangayPage() {
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (!token) return;
+
+    const payload = JSON.parse(atob(token.split(".")[1]));
+
+    if (payload.verified) {
+      window.location.href = "/dashboard";
+    }
+  }, []);
+
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 4;
   const nextStep = () => {
