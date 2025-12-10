@@ -7,6 +7,7 @@ import { ENV } from "./config/env";
 import authRoutes from "./routes/auth.routes";
 import barangayRoutes from "./routes/barangay.routes";
 import verificationBypassRoutes from "./routes/verification-bypass.routes";
+import themeRoutes from "./routes/theme.routes";
 
 const app = express();
 
@@ -21,6 +22,7 @@ const port = Number(ENV.PORT);
 app.use("/api/auth", authRoutes);
 app.use("/api/barangays", barangayRoutes);
 app.use("/api/verify", verificationBypassRoutes);
+app.use("/api/themes", themeRoutes);
 
 app.listen(port, () => {
   console.log(`🚀 OpenSK server running on http://localhost:${port}`);
