@@ -8,6 +8,7 @@ import AuthSuccess from "./components/auth/AuthSuccess";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
+import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
 
 function App() {
   return (
@@ -43,7 +44,7 @@ function App() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <div>Dashboard</div>
+            <ThemeSetupPage />
           </ProtectedRoute>
         }
       />
