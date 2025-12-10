@@ -96,7 +96,7 @@ export function RegisterBarangayPage() {
   // Fetch barangays from backend
   useEffect(() => {
     api
-      .get("/api/barangays")
+      .get("/barangays")
       .then((res) => {
         setBarangays(res.data.data);
       })
@@ -114,7 +114,7 @@ export function RegisterBarangayPage() {
     }
 
     api
-      .patch("/api/verify/bypass", {
+      .patch("/verify/bypass", {
         barangayId: form.barangayId,
       })
       .then((res) => {
