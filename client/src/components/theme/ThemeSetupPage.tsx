@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ThemeButtonStyle, ThemeConfig } from "../../types/theme";
+import api from "../../api/axios";
+import toast from "react-hot-toast";
 import { ColorSection } from "./ColorSection";
 import { TypographySection } from "./TypographySection";
 import { ButtonStyleSection } from "./ButtonStyleSection";
@@ -60,6 +62,21 @@ const defaultConfig: ThemeConfig = {
 
 export const ThemeSetupPage = () => {
   const [config, setConfig] = useState<ThemeConfig>(defaultConfig);
+  const [barangayId, setBarangayId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    if (token) {
+      try {
+        const decoded = JSON.parse(atob(token.split(".")[1]));
+        setBarangayId(decoded.barangayId || null);
+      } catch {
+        console.error("Failed to decode token");
+      }
+    }
+  }, []);
 
   const handleColorChange = (
     key: keyof ThemeConfig["colors"],
@@ -124,12 +141,39 @@ export const ThemeSetupPage = () => {
     link.href = href;
   }, [config.typography]);
 
+  const saveTheme = async () => {
+    if (!barangayId) {
+      const errorMsg = "Barangay ID not found. Please log in again.";
+      setError(errorMsg);
+      toast.error(errorMsg);
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await api.put(`/themes/${barangayId}`, config);
+      toast.success("Theme saved successfully!");
+      setError(null);
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { data?: { message?: string }; status?: number };
+      };
+      const message = error.response?.data?.message || "Failed to save theme";
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-[#f7f9ff] via-white to-[#eef2ff] text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-10">
         <header className="mb-6 rounded-2xl border border-[#e5e9f5] bg-white/90 px-6 py-5 shadow-sm backdrop-blur">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
+            <div className="flex-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#db1d34]">
                 Barangay theming
               </p>
@@ -140,13 +184,20 @@ export const ThemeSetupPage = () => {
                 Configure your portal look and feel. Tune colors, typography,
                 and buttons to match your SK branding.
               </p>
+              {error && (
+                <p className="mt-2 rounded bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
+                  {error}
+                </p>
+              )}
             </div>
-            <div className="flex items-center gap-2 rounded-full bg-[#203972] px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-sm">
-              <span
-                className="h-2 w-2 rounded-full bg-emerald-300"
-                aria-hidden
-              />
-              Preview
+            <div className="flex flex-col items-end gap-3">
+              <button
+                onClick={saveTheme}
+                disabled={isLoading || !barangayId}
+                className="rounded-lg bg-[#203972] px-6 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-[#1a2e5a] disabled:opacity-50"
+              >
+                {isLoading ? "Saving..." : "Save Theme"}
+              </button>
             </div>
           </div>
         </header>
