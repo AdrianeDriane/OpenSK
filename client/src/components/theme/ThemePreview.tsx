@@ -77,9 +77,6 @@ export const ThemePreview = ({ config }: ThemePreviewProps) => {
             Instant preview as you tweak settings.
           </p>
         </div>
-        <span className="rounded-full bg-[#203972] px-3 py-1 text-xs font-semibold text-white shadow-sm">
-          Preview
-        </span>
       </div>
 
       <div

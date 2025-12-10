@@ -146,7 +146,7 @@ export const ThemeSetupPage = () => {
                 className="h-2 w-2 rounded-full bg-emerald-300"
                 aria-hidden
               />
-              Live preview enabled
+              Preview
             </div>
           </div>
         </header>
