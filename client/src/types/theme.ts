@@ -25,3 +25,9 @@ export interface ThemeConfig {
   };
   buttons: ThemeButtonsConfig;
 }
+
+export interface ThemeBySlugResponse {
+  barangayName: string;
+  slug: string;
+  theme: ThemeConfig | null;
+}

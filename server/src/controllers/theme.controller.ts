@@ -4,6 +4,7 @@ import {
   validateThemeConfig,
   HttpError,
   ThemeConfigPayload,
+  getThemeBySlug,
 } from "../services/theme.service";
 
 const parseBarangayId = (value: string) => {
@@ -37,6 +38,18 @@ export const updateThemeController = async (req: Request, res: Response) => {
   try {
     const theme = await updateTheme(barangayId, validation.data);
     return res.status(200).json({ message: "Theme updated", data: theme });
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+// @desc    Get barangay theme by slug
+// @route   GET /api/themes/slug/:slug
+// @access  Public
+export const getThemeBySlugController = async (req: Request, res: Response) => {
+  try {
+    const result = await getThemeBySlug(req.params.slug);
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

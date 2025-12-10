@@ -27,6 +27,12 @@ export type ThemeConfigPayload = {
   };
 };
 
+export type ThemeBySlugResponse = {
+  barangayName: string;
+  slug: string;
+  theme: ThemeConfigPayload | null;
+};
+
 export class HttpError extends Error {
   status: number;
   constructor(status: number, message: string) {
@@ -163,6 +169,34 @@ const ensureBarangayExists = async (barangayId: number) => {
   if (!barangay) {
     throw new HttpError(404, "Barangay not found");
   }
+};
+
+export const getThemeBySlug = async (
+  slug: string
+): Promise<ThemeBySlugResponse> => {
+  const barangay = await prisma.barangay.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+    },
+  });
+
+  if (!barangay) {
+    throw new HttpError(404, "Barangay not found");
+  }
+
+  const theme = await prisma.theme.findUnique({
+    where: { barangayId: barangay.id },
+    select: { config: true },
+  });
+
+  return {
+    barangayName: barangay.name,
+    slug: barangay.slug,
+    theme: (theme?.config as ThemeConfigPayload | null) ?? null,
+  };
 };
 
 export const createTheme = async (

@@ -9,6 +9,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
+import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
 
 function App() {
   return (
@@ -48,6 +49,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/portal/:slug" element={<BarangayPortalPage />} />
 
       {/* Default route (change as needed) */}
       {/* <Route path="*" element={<RegisterBarangayPage />} /> */}
