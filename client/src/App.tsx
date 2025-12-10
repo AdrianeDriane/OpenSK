@@ -5,7 +5,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./components/registerBarangayPage/LoginPage";
 import { RegisterBarangayPage } from "./pages/RegisterBarangayPage";
 import AuthSuccess from "./components/auth/AuthSuccess";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { ProtectedSKRoute } from "./components/auth/ProtectedSKRoute";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
@@ -41,15 +41,27 @@ function App() {
         }
       />
 
+      {/* Theme Customization - SK Officials must complete this before dashboard access */}
       <Route
-        path="/dashboard"
+        path="/theme_customization"
         element={
-          <ProtectedRoute>
+          <ProtectedSKRoute>
             <ThemeSetupPage />
-          </ProtectedRoute>
+          </ProtectedSKRoute>
         }
       />
 
+      {/* Dashboard - Protected for SK Officials (requires theme customization) */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedSKRoute>
+            <div>Dashboard</div>
+          </ProtectedSKRoute>
+        }
+      />
+
+      {/* Public Portal Page */}
       <Route path="/portal/:slug" element={<BarangayPortalPage />} />
 
       {/* Default route (change as needed) */}

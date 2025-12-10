@@ -5,6 +5,7 @@ import {
   HttpError,
   ThemeConfigPayload,
   getThemeBySlug,
+  getThemeStatus,
 } from "../services/theme.service";
 
 const parseBarangayId = (value: string) => {
@@ -50,6 +51,23 @@ export const getThemeBySlugController = async (req: Request, res: Response) => {
   try {
     const result = await getThemeBySlug(req.params.slug);
     return res.status(200).json(result);
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+// @desc    Get theme status for SK Official
+// @route   GET /api/users/:userId/theme-status
+// @access  Private (SK Officials only)
+export const getThemeStatusController = async (req: Request, res: Response) => {
+  const userId = parseBarangayId(req.params.userId); // Reusing parseBarangayId for number validation
+  if (!userId) {
+    return res.status(400).json({ message: "Invalid userId" });
+  }
+
+  try {
+    const status = await getThemeStatus(userId);
+    return res.status(200).json(status);
   } catch (error) {
     return handleError(res, error);
   }

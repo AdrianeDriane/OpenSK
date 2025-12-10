@@ -232,13 +232,67 @@ export const updateTheme = async (
     update: {
       config: config as Prisma.JsonObject,
       updatedAt: new Date(),
+      isDefault: false, // Mark as customized when updated
     },
     create: {
       barangayId,
       config: config as Prisma.JsonObject,
       updatedAt: new Date(),
+      isDefault: false, // New themes created via API are custom
     },
   });
 
   return updated;
+};
+
+/**
+ * Get theme status for a user (SK Official)
+ * Returns information about whether the user's barangay has a customized theme
+ */
+export const getThemeStatus = async (userId: number) => {
+  // 1. Find the user and check role
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      barangayId: true,
+      roleId: true,
+      role: {
+        select: { name: true },
+      },
+    },
+  });
+
+  if (!user) {
+    throw new HttpError(404, "User not found");
+  }
+
+  // 2. Check if user is SK_Official
+  if (user.roleId !== 1) {
+    throw new HttpError(
+      403,
+      "Access denied. Only SK Officials can check theme status."
+    );
+  }
+
+  // 3. Check if user has a barangay assigned
+  if (!user.barangayId) {
+    throw new HttpError(400, "User does not have a barangay assigned");
+  }
+
+  // 4. Fetch the barangay's theme
+  const theme = await prisma.theme.findUnique({
+    where: { barangayId: user.barangayId },
+    select: {
+      id: true,
+      isDefault: true,
+    },
+  });
+
+  // 5. Return status
+  return {
+    hasTheme: !!theme,
+    isDefaultTheme: theme?.isDefault ?? true, // If no theme exists, consider it "default"
+    barangayId: user.barangayId,
+  };
 };

@@ -51,11 +51,12 @@ async function main() {
   for (const b of barangays) {
     await prisma.theme.upsert({
       where: { barangayId: b.id },
-      update: { config: defaultConfig, updatedAt: new Date() },
+      update: { config: defaultConfig, updatedAt: new Date(), isDefault: true },
       create: {
         barangayId: b.id,
         config: defaultConfig,
         updatedAt: new Date(),
+        isDefault: true, // Mark seebded themes as default
       },
     });
   }
