@@ -29,6 +29,7 @@ passport.use(
               googleId: profile.id,
               roleId: 1, // SK official
               verified: false,
+              createdAt: new Date(),
             },
           });
         }
