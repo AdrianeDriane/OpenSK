@@ -90,6 +90,7 @@ export function RegisterBarangayPage() {
       lastName: payload.lastName,
       email: payload.email,
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch barangays from backend
