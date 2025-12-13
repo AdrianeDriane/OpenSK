@@ -43,7 +43,10 @@ export function DashboardHeader({
     <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo Area */}
-        <div className="flex items-center">
+        <div
+          className="flex items-center cursor-pointer"
+          onClick={() => navigate("/dashboard")}
+        >
           <div className="w-8 h-8 bg-[#203972] rounded-md flex items-center justify-center mr-3">
             <span className="text-white font-serif font-bold text-lg">O</span>
           </div>
