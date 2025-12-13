@@ -13,6 +13,7 @@ import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
 import { SKDashboardPage } from "./pages/SKDashboardPage";
 import { AnnouncementsPage } from "./pages/AnnouncementsPage";
 import { SKCouncilProfilePage } from "./pages/SKCouncilProfilePage";
+import { DocumentsPage } from "./pages/DocumentsPage";
 
 function App() {
   return (
@@ -78,6 +79,15 @@ function App() {
         element={
           <ProtectedSKRoute>
             <SKCouncilProfilePage />
+          </ProtectedSKRoute>
+        }
+      />
+
+      <Route
+        path="/documents"
+        element={
+          <ProtectedSKRoute>
+            <DocumentsPage />
           </ProtectedSKRoute>
         }
       />
