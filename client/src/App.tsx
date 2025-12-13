@@ -12,6 +12,7 @@ import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
 import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
 import { SKDashboardPage } from "./pages/SKDashboardPage";
 import { AnnouncementsPage } from "./pages/AnnouncementsPage";
+import { SKCouncilProfilePage } from "./pages/SKCouncilProfilePage";
 
 function App() {
   return (
@@ -68,6 +69,15 @@ function App() {
         element={
           <ProtectedSKRoute>
             <AnnouncementsPage />
+          </ProtectedSKRoute>
+        }
+      />
+
+      <Route
+        path="/council"
+        element={
+          <ProtectedSKRoute>
+            <SKCouncilProfilePage />
           </ProtectedSKRoute>
         }
       />
