@@ -70,6 +70,7 @@ model Barangay {
   theme       Theme?
   documents   Document[]
   inquiries   Inquiry[]
+  announcements Announcement[]
 }
 
 model User {
@@ -92,6 +93,7 @@ model User {
   verificationReviews        VerificationRequest[]          @relation("UserReviewed")
   documents                  Document[]
   inquiriesResponded         Inquiry[]                      @relation("RespondedBy")
+  announcements              Announcement[]
   auditLogs                  AuditLog[]
 }
 
@@ -168,6 +170,20 @@ model Inquiry {
   barangay    Barangay      @relation(fields: [barangayId], references: [id])
   status      InquiryStatus @relation(fields: [statusId], references: [id])
   responder   User?         @relation("RespondedBy", fields: [respondedBy], references: [id])
+}
+
+model Announcement {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  tag         String
+  createdAt   DateTime?
+
+  barangayId  Int
+  createdBy   Int
+
+  barangay    Barangay @relation(fields: [barangayId], references: [id])
+  creator     User     @relation(fields: [createdBy], references: [id])
 }
 
 model AuditLog {
