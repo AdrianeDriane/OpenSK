@@ -9,59 +9,66 @@ const pool = new PrismaPg({
 const prisma = new PrismaClient({ adapter: pool });
 
 async function main() {
-  // console.log("🌱 Seeding roles...");
+  console.log("🌱 Seeding lookup tables...");
 
-  // await prisma.role.createMany({
-  //   data: [{ name: "SK Official" }, { name: "Admin" }],
-  //   skipDuplicates: true, // avoids errors if already seeded
-  // });
+  // Seed Document Types
+  await prisma.documentType.createMany({
+    data: [
+      { name: "ABYIP" },
+      { name: "CBYDP" },
+      { name: "Resolutions" },
+      { name: "Ordinances" },
+      { name: "Accomplishment Reports" },
+      { name: "Minutes of the Meeting" },
+    ],
+    skipDuplicates: true,
+  });
+  console.log("✅ Document types seeded successfully!");
 
-  // console.log("✅ Roles seeded successfully!");
+  // console.log("🌱 Seeding default themes for barangays...");
 
-  console.log("🌱 Seeding default themes for barangays...");
+  // const defaultConfig = {
+  //   colors: {
+  //     primary: "#203972",
+  //     secondary: "#1a2e5a",
+  //     accent: "#fbbf24",
+  //     background: "#f7f9ff",
+  //   },
+  //   typography: {
+  //     headingFont: "Inter",
+  //     bodyFont: "Inter",
+  //   },
+  //   buttons: {
+  //     primary: {
+  //       borderRadius: 12,
+  //       paddingX: 20,
+  //       paddingY: 12,
+  //       variant: "solid",
+  //     },
+  //     secondary: {
+  //       borderRadius: 12,
+  //       paddingX: 18,
+  //       paddingY: 11,
+  //       variant: "outline",
+  //     },
+  //   },
+  // } as const;
 
-  const defaultConfig = {
-    colors: {
-      primary: "#203972",
-      secondary: "#1a2e5a",
-      accent: "#fbbf24",
-      background: "#f7f9ff",
-    },
-    typography: {
-      headingFont: "Inter",
-      bodyFont: "Inter",
-    },
-    buttons: {
-      primary: {
-        borderRadius: 12,
-        paddingX: 20,
-        paddingY: 12,
-        variant: "solid",
-      },
-      secondary: {
-        borderRadius: 12,
-        paddingX: 18,
-        paddingY: 11,
-        variant: "outline",
-      },
-    },
-  } as const;
+  // const barangays = await prisma.barangay.findMany({ select: { id: true } });
+  // for (const b of barangays) {
+  //   await prisma.theme.upsert({
+  //     where: { barangayId: b.id },
+  //     update: { config: defaultConfig, updatedAt: new Date(), isDefault: true },
+  //     create: {
+  //       barangayId: b.id,
+  //       config: defaultConfig,
+  //       updatedAt: new Date(),
+  //       isDefault: true, // Mark seebded themes as default
+  //     },
+  //   });
+  // }
 
-  const barangays = await prisma.barangay.findMany({ select: { id: true } });
-  for (const b of barangays) {
-    await prisma.theme.upsert({
-      where: { barangayId: b.id },
-      update: { config: defaultConfig, updatedAt: new Date(), isDefault: true },
-      create: {
-        barangayId: b.id,
-        config: defaultConfig,
-        updatedAt: new Date(),
-        isDefault: true, // Mark seebded themes as default
-      },
-    });
-  }
-
-  console.log(`✅ Seeded themes for ${barangays.length} barangays`);
+  // console.log(`✅ Seeded themes for ${barangays.length} barangays`);
 }
 
 main()
