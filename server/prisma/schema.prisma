@@ -71,6 +71,7 @@ model Barangay {
   documents   Document[]
   inquiries   Inquiry[]
   announcements Announcement[]
+  officials   SKOfficial[]
 }
 
 model User {
@@ -95,6 +96,7 @@ model User {
   inquiriesResponded         Inquiry[]                      @relation("RespondedBy")
   announcements              Announcement[]
   auditLogs                  AuditLog[]
+  createdOfficials           SKOfficial[]
 }
 
 model VerificationRequest {
@@ -184,6 +186,33 @@ model Announcement {
 
   barangay    Barangay @relation(fields: [barangayId], references: [id])
   creator     User     @relation(fields: [createdBy], references: [id])
+}
+
+model SKOfficial {
+  id              Int            @id @default(autoincrement())
+  name            String
+  role            SKOfficialRole
+  email           String?
+  contactNumber   String?
+  facebookProfile String?
+  imageUrl        String?
+  imageKey        String?
+  createdAt       DateTime?      @default(now())
+
+  barangayId Int
+  createdBy Int?
+
+  barangay Barangay @relation(fields: [barangayId], references: [id])
+  creator  User?    @relation(fields: [createdBy], references: [id])
+
+  @@index([barangayId])
+}
+
+enum SKOfficialRole {
+  SK_COUNCILOR
+  CHAIRMAN
+  TREASURER
+  SECRETARY
 }
 
 model AuditLog {
