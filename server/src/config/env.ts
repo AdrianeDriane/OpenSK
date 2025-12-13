@@ -1,4 +1,3 @@
-// src/config/env.ts
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -12,4 +11,8 @@ export const ENV = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
   JWT_SECRET: process.env.JWT_SECRET,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_BUCKET_NAME: process.env.AWS_BUCKET_NAME,
+  AWS_REGION: process.env.AWS_REGION,
 };
