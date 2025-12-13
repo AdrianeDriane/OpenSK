@@ -10,6 +10,7 @@ import { PublicRoute } from "./components/auth/PublicRoute";
 import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
 import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
+import { SKDashboardPage } from "./pages/SKDashboardPage";
 
 function App() {
   return (
@@ -56,7 +57,7 @@ function App() {
         path="/dashboard"
         element={
           <ProtectedSKRoute>
-            <div>Dashboard</div>
+            <SKDashboardPage />
           </ProtectedSKRoute>
         }
       />
