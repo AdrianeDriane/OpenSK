@@ -5,6 +5,7 @@ import {
   createOfficial,
   deleteOfficial,
   listOfficials,
+  getOfficialsBySlug,
 } from "../controllers/sk-official.controllers";
 
 const router = Router();
@@ -13,6 +14,10 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
+// Public route
+router.get("/public/:slug", getOfficialsBySlug);
+
+// Authenticated routes
 router.get("/", requireAuth, listOfficials);
 router.post("/", requireAuth, upload.single("image"), createOfficial);
 router.delete("/:id", requireAuth, deleteOfficial);

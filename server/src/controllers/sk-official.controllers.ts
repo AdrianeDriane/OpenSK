@@ -138,3 +138,47 @@ export const deleteOfficial = async (
     return res.status(500).json({ error: "Failed to delete SK official" });
   }
 };
+
+export const getOfficialsBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params as { slug?: string };
+
+    if (!slug) {
+      return res.status(400).json({ error: "Barangay slug is required" });
+    }
+
+    const barangay = await prisma.barangay.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!barangay) {
+      return res.status(404).json({ error: "Barangay not found" });
+    }
+
+    const officials = await prisma.sKOfficial.findMany({
+      where: { barangayId: barangay.id },
+      select: {
+        id: true,
+        name: true,
+        role: true,
+        email: true,
+        contactNumber: true,
+        facebookProfile: true,
+        imageUrl: true,
+      },
+      orderBy: [
+        { role: "asc" },
+        { createdAt: "desc" },
+      ],
+    });
+
+    return res.status(200).json({
+      barangaySlug: slug,
+      officials,
+    });
+  } catch (error) {
+    console.error("Error fetching SK officials by slug:", error);
+    return res.status(500).json({ error: "Failed to fetch SK officials" });
+  }
+};

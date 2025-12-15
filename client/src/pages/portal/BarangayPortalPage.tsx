@@ -419,7 +419,7 @@ export const BarangayPortalPage = () => {
             >
               SK Council
             </h2>
-            <CouncilGrid barangayName={barangayName} />
+            <CouncilGrid barangayName={barangayName} slug={slug} />
           </motion.div>
         </div>
       </section>
