@@ -2,8 +2,13 @@ import express from "express";
 import passport from "../config/passport";
 import jwt from "jsonwebtoken";
 import { ENV } from "../config/env";
+import { requireAuth } from "../middlewares/auth.middleware";
+import { getCurrentUser } from "../controllers/auth.controllers";
 
 const router = express.Router();
+
+// GET /api/auth/me - Get current user info
+router.get("/me", requireAuth, getCurrentUser);
 
 router.get(
   "/google",
