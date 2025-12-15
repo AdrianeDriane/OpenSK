@@ -11,6 +11,7 @@ import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
 import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
 import { PortalAnnouncementsPage } from "./pages/portal/PortalAnnouncementsPage";
+import { PortalDocumentsPage } from "./pages/portal/PortalDocumentsPage";
 import { SKDashboardPage } from "./pages/SKDashboardPage";
 import { AnnouncementsPage } from "./pages/AnnouncementsPage";
 import { SKCouncilProfilePage } from "./pages/SKCouncilProfilePage";
@@ -108,6 +109,10 @@ function App() {
       <Route
         path="/portal/:slug/announcements"
         element={<PortalAnnouncementsPage />}
+      />
+      <Route
+        path="/portal/:slug/documents/:typeName"
+        element={<PortalDocumentsPage />}
       />
 
       {/* Default route (change as needed) */}

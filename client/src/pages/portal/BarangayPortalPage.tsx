@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useRef } from "react";
 import {
   Building2,
   FileText,
   PieChart,
   ClipboardList,
   ScrollText,
+  NotebookPen,
+  Library,
 } from "lucide-react";
 import api from "../../api/axios";
 import type { ThemeBySlugResponse } from "../../types/theme";
@@ -24,6 +27,43 @@ export const BarangayPortalPage = () => {
   const [data, setData] = useState<ThemeBySlugResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [docSummary, setDocSummary] = useState<Record<string, number>>({});
+  const [docLoading, setDocLoading] = useState(true);
+  const [docError, setDocError] = useState<string | null>(null);
+  const docScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const documentTypes = [
+    {
+      name: "ABYIP",
+      description: "Annual Barangay Youth Investment Program",
+      icon: NotebookPen,
+    },
+    {
+      name: "CBYDP",
+      description: "Comprehensive Barangay Youth Development Plan",
+      icon: PieChart,
+    },
+    {
+      name: "Resolutions",
+      description: "Official SK and barangay resolutions",
+      icon: FileText,
+    },
+    {
+      name: "Ordinances",
+      description: "Local ordinances and policies",
+      icon: ClipboardList,
+    },
+    {
+      name: "Accomplishment Reports",
+      description: "Reports on completed programs",
+      icon: ScrollText,
+    },
+    {
+      name: "Minutes of the Meeting",
+      description: "Documented minutes for transparency",
+      icon: Library,
+    },
+  ];
 
   useEffect(() => {
     if (!slug) {
@@ -51,6 +91,25 @@ export const BarangayPortalPage = () => {
         applyTheme(null);
       })
       .finally(() => setIsLoading(false));
+  }, [slug]);
+
+  useEffect(() => {
+    if (!slug) return;
+
+    setDocLoading(true);
+    setDocError(null);
+
+    api
+      .get(`/documents/public/${slug}/types`)
+      .then((res) => {
+        const map: Record<string, number> = {};
+        (res.data.types as { name: string; count: number }[]).forEach((t) => {
+          map[t.name.toLowerCase()] = t.count;
+        });
+        setDocSummary(map);
+      })
+      .catch(() => setDocError("Failed to load documents"))
+      .finally(() => setDocLoading(false));
   }, [slug]);
 
   const barangayName = data?.barangayName || "[Barangay Name]";
@@ -218,32 +277,81 @@ export const BarangayPortalPage = () => {
             >
               Document Services
             </h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              <DocumentCard
-                icon={FileText}
-                title="Barangay Clearance"
-                description="Official clearance for various purposes"
-                count={24}
-              />
-              <DocumentCard
-                icon={PieChart}
-                title="Budget Reports"
-                description="Transparency reports and allocations"
-                count={12}
-              />
-              <DocumentCard
-                icon={ClipboardList}
-                title="Ordinances"
-                description="Local laws and regulations"
-                count={18}
-              />
-              <DocumentCard
-                icon={ScrollText}
-                title="Certificates"
-                description="Residency and other certifications"
-                count={31}
-              />
+            {docError && (
+              <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-700">
+                {docError}
+              </div>
+            )}
+
+            <div className="relative">
+              {/* Hide scrollbar for modern browsers */}
+              <style>{`
+                .doc-scroll::-webkit-scrollbar { display: none; }
+                .doc-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+              `}</style>
+
+              <button
+                type="button"
+                aria-label="Scroll documents left"
+                onClick={() =>
+                  docScrollRef.current?.scrollBy({
+                    left: -320,
+                    behavior: "smooth",
+                  })
+                }
+                className="absolute left-0 top-1/2 z-10 -translate-y-1/2 rounded-full border border-gray-200 bg-white p-2 shadow-sm transition hover:bg-gray-50"
+              >
+                <span className="sr-only">Scroll left</span>‹
+              </button>
+
+              <div
+                className="overflow-x-auto pb-2 doc-scroll"
+                ref={docScrollRef}
+              >
+                <div className="flex min-w-full flex-nowrap gap-4 whitespace-nowrap pr-10">
+                  {documentTypes.map((docType, index) => {
+                    const count = docSummary[docType.name.toLowerCase()] ?? 0;
+                    return (
+                      <DocumentCard
+                        key={docType.name}
+                        icon={docType.icon}
+                        title={docType.name}
+                        description={docType.description}
+                        count={docLoading ? 0 : count}
+                        delay={index * 0.05}
+                        className="min-w-[240px] max-w-[260px] flex-shrink-0"
+                        to={`/portal/${slug}/documents/${encodeURIComponent(
+                          docType.name
+                        )}`}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                aria-label="Scroll documents right"
+                onClick={() =>
+                  docScrollRef.current?.scrollBy({
+                    left: 320,
+                    behavior: "smooth",
+                  })
+                }
+                className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full border border-gray-200 bg-white p-2 shadow-sm transition hover:bg-gray-50"
+              >
+                <span className="sr-only">Scroll right</span>›
+              </button>
             </div>
+
+            {docLoading && (
+              <p
+                className="mt-4 text-sm text-gray-600"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Loading documents…
+              </p>
+            )}
           </motion.div>
         </div>
       </section>

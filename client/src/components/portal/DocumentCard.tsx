@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { ArrowRight, type LucideIcon } from "lucide-react";
 
 interface DocumentCardProps {
@@ -7,6 +8,8 @@ interface DocumentCardProps {
   count: number;
   icon: LucideIcon;
   delay?: number;
+  to?: string;
+  className?: string;
 }
 
 export const DocumentCard = ({
@@ -15,15 +18,17 @@ export const DocumentCard = ({
   count,
   icon: Icon,
   delay = 0,
+  to,
+  className = "",
 }: DocumentCardProps) => {
-  return (
+  const card = (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -5 }}
-      className="group cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md"
+      className={`group cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md ${className}`.trim()}
     >
       <div className="mb-4 flex items-start justify-between">
         <div
@@ -50,7 +55,7 @@ export const DocumentCard = ({
         {title}
       </h3>
       <p
-        className="text-sm text-gray-500"
+        className="text-sm text-gray-500 whitespace-normal break-words leading-snug"
         style={{ fontFamily: "var(--font-body)" }}
       >
         {description}
@@ -68,4 +73,14 @@ export const DocumentCard = ({
       </div>
     </motion.div>
   );
+
+  if (to) {
+    return (
+      <Link to={to} className="no-underline" aria-label={`${title} documents`}>
+        {card}
+      </Link>
+    );
+  }
+
+  return card;
 };
