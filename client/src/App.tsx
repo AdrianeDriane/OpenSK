@@ -10,6 +10,7 @@ import { PublicRoute } from "./components/auth/PublicRoute";
 import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
 import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
+import { PortalAnnouncementsPage } from "./pages/portal/PortalAnnouncementsPage";
 import { SKDashboardPage } from "./pages/SKDashboardPage";
 import { AnnouncementsPage } from "./pages/AnnouncementsPage";
 import { SKCouncilProfilePage } from "./pages/SKCouncilProfilePage";
@@ -104,6 +105,10 @@ function App() {
 
       {/* Public Portal Page */}
       <Route path="/portal/:slug" element={<BarangayPortalPage />} />
+      <Route
+        path="/portal/:slug/announcements"
+        element={<PortalAnnouncementsPage />}
+      />
 
       {/* Default route (change as needed) */}
       {/* <Route path="*" element={<RegisterBarangayPage />} /> */}

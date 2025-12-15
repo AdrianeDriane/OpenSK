@@ -1,37 +1,71 @@
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Pin, Calendar, ArrowRight } from "lucide-react";
+import { Calendar, ArrowRight, Loader2 } from "lucide-react";
+import api from "../../api/axios";
 
-const announcements = [
-  {
-    id: 1,
-    title: "Barangay Assembly 2024: State of the Barangay Address",
-    date: "Oct 15, 2024",
-    excerpt:
-      "Join us for the semi-annual Barangay Assembly where we will discuss the accomplishments of the past 6 months and future plans.",
-    pinned: true,
-    category: "Event",
-  },
-  {
-    id: 2,
-    title: "Free Medical and Dental Mission",
-    date: "Oct 22, 2024",
-    excerpt:
-      "The Barangay Health Center will be conducting a free medical and dental mission for all residents. Registration starts at 7AM.",
-    pinned: false,
-    category: "Health",
-  },
-  {
-    id: 3,
-    title: "SK Basketball League Registration Extended",
-    date: "Oct 25, 2024",
-    excerpt:
-      "Due to popular demand, we are extending the registration for the Inter-Purok Basketball League until the end of the month.",
-    pinned: false,
-    category: "Sports",
-  },
-];
+interface Announcement {
+  id: number;
+  title: string;
+  description: string;
+  tag: string;
+  createdAt: string;
+}
 
 export const AnnouncementGrid = () => {
+  const { slug } = useParams();
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      if (!slug) return;
+
+      try {
+        setIsLoading(true);
+        setError(null);
+        const response = await api.get(`/announcements/public/${slug}?limit=3`);
+        setAnnouncements(response.data.announcements);
+      } catch (err) {
+        console.error("Error fetching announcements:", err);
+        setError("Failed to load announcements");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2
+          className="h-8 w-8 animate-spin"
+          style={{ color: "var(--color-primary)" }}
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-red-50 p-4 text-center text-red-600">
+        {error}
+      </div>
+    );
+  }
+
+  if (announcements.length === 0) {
+    return (
+      <div className="rounded-lg bg-gray-50 p-8 text-center">
+        <p className="text-gray-600" style={{ fontFamily: "var(--font-body)" }}>
+          No announcements available at this time.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <div className="mb-2 flex items-center justify-between">
@@ -44,8 +78,8 @@ export const AnnouncementGrid = () => {
         >
           Latest Announcements
         </h2>
-        <a
-          href="#"
+        <Link
+          to={`/portal/${slug}/announcements`}
           className="flex items-center text-sm font-medium hover:underline"
           style={{
             color: "var(--color-accent)",
@@ -53,7 +87,7 @@ export const AnnouncementGrid = () => {
           }}
         >
           View All <ArrowRight className="ml-1 h-4 w-4" />
-        </a>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -64,32 +98,19 @@ export const AnnouncementGrid = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
-            className={`flex flex-col rounded-xl border bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md ${
-              item.pinned ? "ring-1 ring-blue-50" : "border-gray-100"
-            }`}
-            style={{
-              borderColor: item.pinned ? "var(--color-primary)" : undefined,
-            }}
+            className="flex flex-col rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
           >
-            <div className="mb-4 flex items-center justify-between">
+            <div className="mb-4">
               <span
                 className="rounded-md px-2 py-1 text-xs font-bold"
                 style={{
-                  backgroundColor: item.pinned
-                    ? "rgba(32,57,114,0.1)"
-                    : "#f3f4f6",
-                  color: item.pinned ? "var(--color-primary)" : "#4b5563",
+                  backgroundColor: "#f3f4f6",
+                  color: "#4b5563",
                   fontFamily: "var(--font-body)",
                 }}
               >
-                {item.category}
+                {item.tag}
               </span>
-              {item.pinned && (
-                <Pin
-                  className="h-4 w-4 fill-current"
-                  style={{ color: "var(--color-primary)" }}
-                />
-              )}
             </div>
 
             <h3
@@ -103,7 +124,7 @@ export const AnnouncementGrid = () => {
               className="mb-6 line-clamp-3 flex-1 text-sm text-gray-600"
               style={{ fontFamily: "var(--font-body)" }}
             >
-              {item.excerpt}
+              {item.description}
             </p>
 
             <div
@@ -111,7 +132,11 @@ export const AnnouncementGrid = () => {
               style={{ fontFamily: "var(--font-body)" }}
             >
               <Calendar className="mr-1.5 h-3 w-3" />
-              {item.date}
+              {new Date(item.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })}
             </div>
           </motion.div>
         ))}
