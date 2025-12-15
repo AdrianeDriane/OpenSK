@@ -14,6 +14,7 @@ import { SKDashboardPage } from "./pages/SKDashboardPage";
 import { AnnouncementsPage } from "./pages/AnnouncementsPage";
 import { SKCouncilProfilePage } from "./pages/SKCouncilProfilePage";
 import { DocumentsPage } from "./pages/DocumentsPage";
+import { InquiriesPage } from "./pages/InquiriesPage";
 
 function App() {
   return (
@@ -88,6 +89,15 @@ function App() {
         element={
           <ProtectedSKRoute>
             <DocumentsPage />
+          </ProtectedSKRoute>
+        }
+      />
+
+      <Route
+        path="/inquiries"
+        element={
+          <ProtectedSKRoute>
+            <InquiriesPage />
           </ProtectedSKRoute>
         }
       />
