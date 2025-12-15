@@ -28,7 +28,7 @@ export const DocumentCard = ({
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -5 }}
-      className={`group cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md ${className}`.trim()}
+      className={`group flex h-full min-h-[240px] flex-col cursor-pointer rounded-xl border border-gray-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md ${className}`.trim()}
     >
       <div className="mb-4 flex items-start justify-between">
         <div
@@ -62,7 +62,7 @@ export const DocumentCard = ({
       </p>
 
       <div
-        className="mt-4 flex items-center text-sm font-medium transition-colors group-hover:text-[var(--color-accent)]"
+        className="mt-auto flex items-center text-sm font-medium transition-colors group-hover:text-[var(--color-accent)]"
         style={{
           color: "var(--color-primary)",
           fontFamily: "var(--font-body)",
