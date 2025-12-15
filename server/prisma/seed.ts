@@ -11,19 +11,29 @@ const prisma = new PrismaClient({ adapter: pool });
 async function main() {
   console.log("🌱 Seeding lookup tables...");
 
-  // Seed Document Types
-  await prisma.documentType.createMany({
+  // Seed Inquiry Status
+  await prisma.inquiryStatus.createMany({
     data: [
-      { name: "ABYIP" },
-      { name: "CBYDP" },
-      { name: "Resolutions" },
-      { name: "Ordinances" },
-      { name: "Accomplishment Reports" },
-      { name: "Minutes of the Meeting" },
+      { id: 1, name: "Open" },
+      { id: 2, name: "Resolved" },
     ],
     skipDuplicates: true,
   });
-  console.log("✅ Document types seeded successfully!");
+  console.log("✅ Inquiry status seeded successfully!");
+
+  // Seed Document Types
+  // await prisma.documentType.createMany({
+  //   data: [
+  //     { name: "ABYIP" },
+  //     { name: "CBYDP" },
+  //     { name: "Resolutions" },
+  //     { name: "Ordinances" },
+  //     { name: "Accomplishment Reports" },
+  //     { name: "Minutes of the Meeting" },
+  //   ],
+  //   skipDuplicates: true,
+  // });
+  // console.log("✅ Document types seeded successfully!");
 
   // console.log("🌱 Seeding default themes for barangays...");
 
