@@ -102,3 +102,57 @@ export const createAnnouncement = async (
     return res.status(500).json({ error: "Failed to create announcement" });
   }
 };
+
+export const getAnnouncementsBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params;
+
+    if (!slug) {
+      return res.status(400).json({ error: "Barangay slug is required" });
+    }
+
+    // Find barangay by slug
+    const barangay = await prisma.barangay.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!barangay) {
+      return res.status(404).json({ error: "Barangay not found" });
+    }
+
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [announcements, total] = await Promise.all([
+      prisma.announcement.findMany({
+        where: { barangayId: barangay.id },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          tag: true,
+          createdAt: true,
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.announcement.count({ where: { barangayId: barangay.id } }),
+    ]);
+
+    return res.status(200).json({
+      announcements,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching announcements by slug:", error);
+    return res.status(500).json({ error: "Failed to fetch announcements" });
+  }
+};
