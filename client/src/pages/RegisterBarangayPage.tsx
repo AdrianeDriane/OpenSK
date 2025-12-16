@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { StepIndicator } from "../components/registerBarangayPage/StepIndicator";
 import { FormStep } from "../components/registerBarangayPage/FormStep";
+import { PendingVerification } from "../components/registerBarangayPage/PendingVerification";
 import {
   ChevronRight,
   ChevronLeft,
@@ -9,6 +10,7 @@ import {
   FileText,
   Building2,
   User,
+  Loader2,
 } from "lucide-react";
 
 import SKLogo from "../assets/icons/sk_logo.png";
@@ -33,6 +35,24 @@ interface Barangay {
   name: string;
 }
 
+interface VerificationRequest {
+  id: number;
+  status: { name: string };
+  submittedAt: string;
+  remarks: string | null;
+  user: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    barangay: { id: number; name: string } | null;
+  };
+  documents: Array<{
+    id: number;
+    fileUrl: string;
+    type: { name: string };
+  }>;
+}
+
 interface RegistrationForm {
   firstName: string;
   lastName: string;
@@ -43,14 +63,18 @@ interface RegistrationForm {
   city: string;
   barangayId: number | null;
   remarks: string;
-
-  governmentIdFile: File | null;
-  oathOfOfficeFile: File | null;
+  // Document fields
+  validIdFile: File | null;
+  supportingDocType: string; // "Certificate of Incumbency" | "Certificate of Proclamation" | "Oath of Office"
+  supportingDocFile: File | null;
 }
 
 export function RegisterBarangayPage() {
-  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [barangays, setBarangays] = useState<Barangay[]>([]);
+  const [existingRequest, setExistingRequest] = useState<VerificationRequest | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const [form, setForm] = useState<RegistrationForm>({
     firstName: "",
@@ -62,8 +86,9 @@ export function RegisterBarangayPage() {
     city: "Cebu City",
     barangayId: null,
     remarks: "",
-    governmentIdFile: null,
-    oathOfOfficeFile: null,
+    validIdFile: null,
+    supportingDocType: "Certificate of Incumbency",
+    supportingDocFile: null,
   });
 
   const [currentStep, setCurrentStep] = useState(1);
@@ -78,10 +103,8 @@ export function RegisterBarangayPage() {
 
     if (payload.verified) {
       window.location.href = "/dashboard";
+      return;
     }
-
-    setAuthUser(payload);
-    console.log(authUser);
 
     // Sync form with authUser
     setForm((prev) => ({
@@ -90,7 +113,24 @@ export function RegisterBarangayPage() {
       lastName: payload.lastName,
       email: payload.email,
     }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Fetch existing verification request
+  useEffect(() => {
+    const checkExistingRequest = async () => {
+      try {
+        const res = await api.get("/verification-requests/me");
+        if (res.data.request) {
+          setExistingRequest(res.data.request);
+        }
+      } catch (err) {
+        console.error("Error checking verification status:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkExistingRequest();
   }, []);
 
   // Fetch barangays from backend
@@ -107,32 +147,66 @@ export function RegisterBarangayPage() {
     currentStep < totalSteps && setCurrentStep((s) => s + 1);
   const prevStep = () => currentStep > 1 && setCurrentStep((s) => s - 1);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Validation
     if (!form.barangayId) {
       toast.error("Please select a barangay.");
       return;
     }
+    if (!form.validIdFile) {
+      toast.error("Please upload a Valid ID.");
+      return;
+    }
+    if (!form.supportingDocFile) {
+      toast.error("Please upload a supporting document.");
+      return;
+    }
+    if (!agreedToTerms) {
+      toast.error("Please agree to the Terms of Service and Privacy Policy.");
+      return;
+    }
 
-    api
-      .patch("/verify/bypass", {
-        barangayId: form.barangayId,
-      })
-      .then((res) => {
-        // 1️⃣ Update localStorage so ProtectedRoute won't block
-        localStorage.setItem("auth_user", JSON.stringify(res.data.user));
-        localStorage.setItem("auth_token", res.data.token);
+    setIsSubmitting(true);
 
-        toast.success("Registration complete! Redirecting...");
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("barangayId", String(form.barangayId));
+      formData.append("mobileNumber", form.mobileNumber);
+      formData.append("role", form.role);
+      formData.append("remarks", form.remarks);
+      formData.append("validId", form.validIdFile);
+      formData.append("supportingDocType", form.supportingDocType);
+      formData.append("supportingDoc", form.supportingDocFile);
 
-        setTimeout(() => {
-          window.location.href = "/dashboard";
-        }, 1200);
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Something went wrong while saving your registration.");
+      const res = await api.post("/verification-requests", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
+      toast.success("Registration submitted successfully!");
+      setExistingRequest(res.data.request);
+    } catch (err: any) {
+      console.error(err);
+      const message = err.response?.data?.error || "Something went wrong while submitting.";
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-[#203972]" />
+      </div>
+    );
+  }
+
+  // Show pending verification screen if request exists
+  if (existingRequest) {
+    return <PendingVerification request={existingRequest} />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center py-12 px-4 font-sans">
@@ -334,67 +408,96 @@ export function RegisterBarangayPage() {
                   description="Upload proof of your appointment"
                 >
                   <div className="space-y-6">
-                    {/* Government ID Upload */}
-                    <input
-                      type="file"
-                      id="gov-id-upload"
-                      accept=".png,.jpg,.jpeg,.pdf"
-                      className="hidden"
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          governmentIdFile: e.target.files?.[0] || null,
-                        }))
-                      }
-                    />
+                    {/* Valid ID Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Valid Government ID <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        id="valid-id-upload"
+                        accept=".png,.jpg,.jpeg,.pdf"
+                        className="hidden"
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            validIdFile: e.target.files?.[0] || null,
+                          }))
+                        }
+                      />
+                      <label
+                        htmlFor="valid-id-upload"
+                        className="block border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#203972] bg-gray-50 hover:bg-blue-50 cursor-pointer transition-colors"
+                      >
+                        <div className="mx-auto h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2">
+                          <Upload className="h-5 w-5 text-[#203972]" />
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Upload Valid ID
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {form.validIdFile
+                            ? `✓ ${form.validIdFile.name}`
+                            : "PNG, JPG, PDF up to 5MB"}
+                        </p>
+                      </label>
+                    </div>
 
-                    <label
-                      htmlFor="gov-id-upload"
-                      className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#203972] bg-gray-50 hover:bg-blue-50 cursor-pointer transition-colors"
-                    >
-                      <div className="mx-auto h-12 w-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
-                        <Upload className="h-6 w-6 text-[#203972]" />
-                      </div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        Upload Government ID
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {form.governmentIdFile
-                          ? `Selected: ${form.governmentIdFile.name}`
-                          : "PNG, JPG, PDF up to 5MB"}
-                      </p>
-                    </label>
+                    {/* Supporting Document Type Dropdown */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Supporting Document Type <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={form.supportingDocType}
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            supportingDocType: e.target.value,
+                          }))
+                        }
+                        className="w-full px-4 py-2 border rounded-md focus:ring-[#203972] focus:border-[#203972]"
+                      >
+                        <option value="Certificate of Incumbency">Certificate of Incumbency</option>
+                        <option value="Certificate of Proclamation">Certificate of Proclamation</option>
+                        <option value="Oath of Office">Oath of Office</option>
+                      </select>
+                    </div>
 
-                    {/* Oath of Office Upload */}
-                    <input
-                      type="file"
-                      id="oath-upload"
-                      accept=".png,.jpg,.jpeg,.pdf"
-                      className="hidden"
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          oathOfOfficeFile: e.target.files?.[0] || null,
-                        }))
-                      }
-                    />
-
-                    <label
-                      htmlFor="oath-upload"
-                      className="block border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-[#203972] bg-gray-50 hover:bg-blue-50 cursor-pointer transition-colors"
-                    >
-                      <div className="mx-auto h-12 w-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
-                        <FileText className="h-6 w-6 text-[#203972]" />
-                      </div>
-                      <h3 className="text-sm font-medium text-gray-900">
-                        Upload Oath of Office
-                      </h3>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {form.oathOfOfficeFile
-                          ? `Selected: ${form.oathOfOfficeFile.name}`
-                          : "PNG, JPG, PDF up to 5MB"}
-                      </p>
-                    </label>
+                    {/* Supporting Document Upload */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Upload {form.supportingDocType} <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="file"
+                        id="supporting-doc-upload"
+                        accept=".png,.jpg,.jpeg,.pdf"
+                        className="hidden"
+                        onChange={(e) =>
+                          setForm((prev) => ({
+                            ...prev,
+                            supportingDocFile: e.target.files?.[0] || null,
+                          }))
+                        }
+                      />
+                      <label
+                        htmlFor="supporting-doc-upload"
+                        className="block border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-[#203972] bg-gray-50 hover:bg-blue-50 cursor-pointer transition-colors"
+                      >
+                        <div className="mx-auto h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm mb-2">
+                          <FileText className="h-5 w-5 text-[#203972]" />
+                        </div>
+                        <h3 className="text-sm font-medium text-gray-900">
+                          Upload {form.supportingDocType}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {form.supportingDocFile
+                            ? `✓ ${form.supportingDocFile.name}`
+                            : "PNG, JPG, PDF up to 5MB"}
+                        </p>
+                      </label>
+                    </div>
                   </div>
                 </FormStep>
               )}
@@ -431,10 +534,7 @@ export function RegisterBarangayPage() {
                         </p>
                         <p className="font-medium text-gray-900">
                           {form.role} • Barangay{" "}
-                          {
-                            barangays.find((b) => b.id === form.barangayId)
-                              ?.name
-                          }
+                          {barangays.find((b) => b.id === form.barangayId)?.name || "Not selected"}
                           , Cebu City
                         </p>
                       </div>
@@ -449,13 +549,18 @@ export function RegisterBarangayPage() {
                         <p className="text-xs text-gray-500 uppercase font-semibold">
                           Documents
                         </p>
-                        <p className="font-medium text-gray-900">
-                          {form.governmentIdFile?.name ||
-                            "No Government ID uploaded"}
-                          ,{" "}
-                          {form.oathOfOfficeFile?.name ||
-                            "No Oath of Office uploaded"}
-                        </p>
+                        <ul className="text-sm text-gray-900 space-y-1">
+                          <li>
+                            {form.validIdFile
+                              ? `✓ Valid ID: ${form.validIdFile.name}`
+                              : "✗ Valid ID (missing)"}
+                          </li>
+                          <li>
+                            {form.supportingDocFile
+                              ? `✓ ${form.supportingDocType}: ${form.supportingDocFile.name}`
+                              : `✗ ${form.supportingDocType} (missing)`}
+                          </li>
+                        </ul>
                       </div>
                     </div>
 
@@ -476,6 +581,8 @@ export function RegisterBarangayPage() {
                   <div className="flex items-start p-4 bg-blue-50 rounded-md mt-4">
                     <input
                       type="checkbox"
+                      checked={agreedToTerms}
+                      onChange={(e) => setAgreedToTerms(e.target.checked)}
                       className="mt-1 h-4 w-4 text-[#203972] border-gray-300 rounded"
                     />
                     <label className="ml-3 text-sm text-gray-700">
@@ -497,12 +604,12 @@ export function RegisterBarangayPage() {
           </div>
 
           {/* Footer Navigation */}
-          <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+          <div className="px-8 py-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center mt-auto">
             <button
               onClick={prevStep}
-              disabled={currentStep === 1}
+              disabled={currentStep === 1 || isSubmitting}
               className={`flex items-center px-4 py-2 rounded-md font-medium transition-colors ${
-                currentStep === 1
+                currentStep === 1 || isSubmitting
                   ? "text-gray-300 cursor-not-allowed"
                   : "text-gray-600 hover:text-[#203972] hover:bg-gray-100"
               }`}
@@ -512,14 +619,24 @@ export function RegisterBarangayPage() {
             </button>
 
             <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
               onClick={currentStep === totalSteps ? handleSubmit : nextStep}
-              className="flex items-center px-6 py-2 bg-[#db1d34] text-white rounded-md font-medium shadow-sm hover:bg-[#b9182b]"
+              disabled={isSubmitting}
+              className="flex items-center px-6 py-2 bg-[#db1d34] text-white rounded-md font-medium shadow-sm hover:bg-[#b9182b] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {currentStep === totalSteps ? "Submit Registration" : "Next Step"}
-              {currentStep !== totalSteps && (
-                <ChevronRight className="w-4 h-4 ml-1" />
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Submitting...
+                </>
+              ) : currentStep === totalSteps ? (
+                "Submit Registration"
+              ) : (
+                <>
+                  Next Step
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </>
               )}
             </motion.button>
           </div>

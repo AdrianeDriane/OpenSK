@@ -11,6 +11,28 @@ const prisma = new PrismaClient({ adapter: pool });
 async function main() {
   console.log("🌱 Seeding lookup tables...");
 
+  // Seed Verification Request Status
+  await prisma.verificationRequestStatus.createMany({
+    data: [
+      { id: 1, name: "Pending" },
+      { id: 2, name: "Approved" },
+      { id: 3, name: "Rejected" },
+    ],
+    skipDuplicates: true,
+  });
+  console.log("✅ Verification request status seeded successfully!");
+
+  // Seed Verification Request Document Types
+  await prisma.verificationRequestDocumentType.createMany({
+    data: [
+      { id: 1, name: "Certificate of Incumbency" },
+      { id: 2, name: "Certificate of Proclamation" },
+      { id: 3, name: "Oath of Office" },
+    ],
+    skipDuplicates: true,
+  });
+  console.log("✅ Verification request document types seeded successfully!");
+
   // Seed Inquiry Status
   await prisma.inquiryStatus.createMany({
     data: [

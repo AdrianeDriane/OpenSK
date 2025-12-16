@@ -167,10 +167,7 @@ export const getOfficialsBySlug = async (req: Request, res: Response) => {
         facebookProfile: true,
         imageUrl: true,
       },
-      orderBy: [
-        { role: "asc" },
-        { createdAt: "desc" },
-      ],
+      orderBy: [{ role: "asc" }, { createdAt: "desc" }],
     });
 
     return res.status(200).json({
