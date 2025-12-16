@@ -17,7 +17,6 @@ import { applyTheme } from "../../theme/applyTheme";
 import { PortalNavbar } from "../../components/portal/PortalNavbar";
 import { AnnouncementGrid } from "../../components/portal/AnnouncementGrid";
 import { DocumentCard } from "../../components/portal/DocumentCard";
-import { ProjectCard } from "../../components/portal/ProjectCard";
 import { CouncilGrid } from "../../components/portal/CouncilGrid";
 import { InquiryForm } from "../../components/portal/InquiryForm";
 import { PortalFooterNew } from "../../components/portal/PortalFooterNew";
@@ -352,54 +351,6 @@ export const BarangayPortalPage = () => {
                 Loading documents…
               </p>
             )}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Projects Section */}
-      <section className="py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2
-              className="mb-8 text-2xl font-bold text-slate-800"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              Community Projects
-            </h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              <ProjectCard
-                title="Youth Skills Training Program"
-                description="Free vocational training for out-of-school youth ages 15-24"
-                status="Ongoing"
-                progress={65}
-                location="Barangay Hall"
-                date="Jan - Jun 2025"
-                image="https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=400&h=300&fit=crop"
-              />
-              <ProjectCard
-                title="Community Garden Initiative"
-                description="Urban farming project for sustainable food production"
-                status="Completed"
-                progress={100}
-                location="Zone 3 Area"
-                date="Completed Dec 2024"
-                image="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=300&fit=crop"
-              />
-              <ProjectCard
-                title="Street Lighting Upgrade"
-                description="LED lighting installation for safer streets at night"
-                status="Planned"
-                progress={0}
-                location="Main Roads"
-                date="Starting Feb 2025"
-                image="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop"
-              />
-            </div>
           </motion.div>
         </div>
       </section>
