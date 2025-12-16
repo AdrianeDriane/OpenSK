@@ -94,16 +94,12 @@ export const submitVerificationRequest = async (
 
     // Create verification request with documents in a transaction
     const verificationRequest = await prisma.$transaction(async (tx) => {
-      // Update user's barangayId (but keep verified as false)
-      await tx.user.update({
-        where: { id: userId },
-        data: { barangayId: parseInt(barangayId, 10) },
-      });
-
-      // Create the verification request
+      // Create the verification request (store barangayId on request, not user)
+      // User's barangayId will be set when admin approves the request
       const request = await tx.verificationRequest.create({
         data: {
           userId,
+          barangayId: parseInt(barangayId, 10),
           statusId: 1, // Pending
           remarks: fullRemarks || null,
           submittedAt: new Date(),
@@ -119,14 +115,14 @@ export const submitVerificationRequest = async (
           documents: {
             include: { type: true },
           },
+          barangay: {
+            select: { id: true, name: true },
+          },
           user: {
             select: {
               firstName: true,
               lastName: true,
               email: true,
-              barangay: {
-                select: { id: true, name: true },
-              },
             },
           },
         },
@@ -164,6 +160,9 @@ export const getMyVerificationRequest = async (req: Request, res: Response) => {
       orderBy: { submittedAt: "desc" },
       include: {
         status: true,
+        barangay: {
+          select: { id: true, name: true },
+        },
         documents: {
           include: { type: true },
         },
@@ -172,9 +171,6 @@ export const getMyVerificationRequest = async (req: Request, res: Response) => {
             firstName: true,
             lastName: true,
             email: true,
-            barangay: {
-              select: { id: true, name: true },
-            },
           },
         },
       },
@@ -186,5 +182,126 @@ export const getMyVerificationRequest = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ error: "Failed to fetch verification request" });
+  }
+};
+
+/**
+ * Resubmit documents for a rejected verification request
+ * PATCH /api/verification-requests/resubmit
+ */
+export const resubmitVerificationRequest = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const { supportingDocType } = req.body;
+
+    // Find the user's latest rejected request
+    const existingRequest = await prisma.verificationRequest.findFirst({
+      where: {
+        userId,
+        statusId: 3, // Rejected
+      },
+      orderBy: { submittedAt: "desc" },
+    });
+
+    if (!existingRequest) {
+      return res.status(400).json({
+        error: "No rejected verification request found to resubmit",
+      });
+    }
+
+    if (!supportingDocType || !DOCUMENT_TYPE_IDS[supportingDocType]) {
+      return res
+        .status(400)
+        .json({ error: "Valid supporting document type is required" });
+    }
+
+    // Validate files
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+    if (!files?.validId?.[0]) {
+      return res.status(400).json({ error: "Valid ID is required" });
+    }
+    if (!files?.supportingDoc?.[0]) {
+      return res.status(400).json({ error: "Supporting document is required" });
+    }
+
+    // Upload documents to S3
+    const uploadDocument = async (
+      file: Express.Multer.File,
+      typeId: number
+    ) => {
+      const extension = path.extname(file.originalname).toLowerCase();
+      const key = `verification-docs/${userId}/${Date.now()}-${randomUUID()}${extension}`;
+      const fileUrl = await uploadImageToS3(key, file);
+      return { fileUrl, typeId, key };
+    };
+
+    const [validIdDoc, supportingDoc] = await Promise.all([
+      uploadDocument(files.validId[0], DOCUMENT_TYPE_IDS["Valid ID"]),
+      uploadDocument(
+        files.supportingDoc[0],
+        DOCUMENT_TYPE_IDS[supportingDocType]
+      ),
+    ]);
+
+    // Update the existing request with new documents in a transaction
+    const verificationRequest = await prisma.$transaction(async (tx) => {
+      // Delete old documents
+      await tx.verificationRequestDocuments.deleteMany({
+        where: { requestId: existingRequest.id },
+      });
+
+      // Update the request - reset to pending, clear rejection reason
+      const request = await tx.verificationRequest.update({
+        where: { id: existingRequest.id },
+        data: {
+          statusId: 1, // Back to Pending
+          rejectionReason: null,
+          submittedAt: new Date(),
+          documents: {
+            create: [
+              { fileUrl: validIdDoc.fileUrl, typeId: validIdDoc.typeId },
+              { fileUrl: supportingDoc.fileUrl, typeId: supportingDoc.typeId },
+            ],
+          },
+        },
+        include: {
+          status: true,
+          documents: {
+            include: { type: true },
+          },
+          barangay: {
+            select: { id: true, name: true },
+          },
+          user: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      return request;
+    });
+
+    return res.status(200).json({
+      message: "Verification request resubmitted successfully",
+      request: verificationRequest,
+    });
+  } catch (error) {
+    console.error("Error resubmitting verification request:", error);
+    return res
+      .status(500)
+      .json({ error: "Failed to resubmit verification request" });
   }
 };

@@ -4,6 +4,7 @@ import { requireRole } from "../middlewares/auth.middleware";
 import {
   submitVerificationRequest,
   getMyVerificationRequest,
+  resubmitVerificationRequest,
 } from "../controllers/verification-request.controllers";
 
 const router = Router();
@@ -28,6 +29,14 @@ router.post(
   requireRole([1]),
   verificationUpload,
   submitVerificationRequest
+);
+
+// PATCH /api/verification-requests/resubmit - Resubmit documents for rejected request (SK Official only)
+router.patch(
+  "/resubmit",
+  requireRole([1]),
+  verificationUpload,
+  resubmitVerificationRequest
 );
 
 export default router;

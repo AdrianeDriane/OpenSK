@@ -1,17 +1,27 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Clock, FileCheck, Mail, LogOut } from "lucide-react";
+import {
+  Clock,
+  FileCheck,
+  Mail,
+  LogOut,
+  AlertTriangle,
+  RefreshCw,
+} from "lucide-react";
 import SKLogo from "../../assets/icons/sk_logo.png";
+import { ResubmitDocumentsModal } from "./ResubmitDocumentsModal";
 
 interface VerificationRequest {
   id: number;
   status: { name: string };
   submittedAt: string;
   remarks: string | null;
+  rejectionReason: string | null;
+  barangay: { id: number; name: string } | null;
   user: {
     firstName: string;
     lastName: string;
     email: string;
-    barangay: { id: number; name: string } | null;
   };
   documents: Array<{
     id: number;
@@ -22,9 +32,14 @@ interface VerificationRequest {
 
 interface PendingVerificationProps {
   request: VerificationRequest;
+  onRequestUpdate?: (request: VerificationRequest) => void;
 }
 
-export function PendingVerification({ request }: PendingVerificationProps) {
+export function PendingVerification({
+  request,
+  onRequestUpdate,
+}: PendingVerificationProps) {
+  const [isResubmitModalOpen, setIsResubmitModalOpen] = useState(false);
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("auth_user");
@@ -127,7 +142,7 @@ export function PendingVerification({ request }: PendingVerificationProps) {
               <div className="flex justify-between">
                 <span className="text-gray-500">Barangay</span>
                 <span className="text-gray-900 font-medium">
-                  {request.user.barangay?.name || "Not assigned"}
+                  {request.barangay?.name || "Not assigned"}
                 </span>
               </div>
 
@@ -150,6 +165,36 @@ export function PendingVerification({ request }: PendingVerificationProps) {
               </div>
             </div>
           </div>
+
+          {/* Rejection Reason */}
+          {request.status.name === "Rejected" && request.rejectionReason && (
+            <div className="mt-6 p-4 bg-red-50 rounded-lg border border-red-100">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-red-800 mb-1">
+                    Reason for Rejection
+                  </h4>
+                  <p className="text-sm text-red-700">
+                    {request.rejectionReason}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Resubmit Button for Rejected Requests */}
+          {request.status.name === "Rejected" && (
+            <div className="mt-6">
+              <button
+                onClick={() => setIsResubmitModalOpen(true)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#203972] text-white rounded-lg hover:bg-[#152a5c] transition-colors font-medium"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Resubmit Documents
+              </button>
+            </div>
+          )}
 
           {/* Contact Info */}
           <div className="mt-6 p-4 bg-blue-50 rounded-lg flex items-start gap-3">
@@ -189,6 +234,17 @@ export function PendingVerification({ request }: PendingVerificationProps) {
       >
         You'll receive an email notification once your application is reviewed.
       </motion.p>
+
+      {/* Resubmit Documents Modal */}
+      <ResubmitDocumentsModal
+        isOpen={isResubmitModalOpen}
+        onClose={() => setIsResubmitModalOpen(false)}
+        onSuccess={(updatedRequest) => {
+          if (onRequestUpdate) {
+            onRequestUpdate(updatedRequest);
+          }
+        }}
+      />
     </div>
   );
 }

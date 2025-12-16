@@ -66,12 +66,13 @@ model Barangay {
   slug      String     @unique
   createdAt DateTime?
 
-  users       User[]
-  theme       Theme?
-  documents   Document[]
-  inquiries   Inquiry[]
-  announcements Announcement[]
-  officials   SKOfficial[]
+  users                User[]
+  theme                Theme?
+  documents            Document[]
+  inquiries            Inquiry[]
+  announcements        Announcement[]
+  officials            SKOfficial[]
+  verificationRequests VerificationRequest[]
 }
 
 model User {
@@ -100,19 +101,22 @@ model User {
 }
 
 model VerificationRequest {
-  id          Int       @id @default(autoincrement())
-  remarks     String?
-  submittedAt DateTime?
-  reviewedAt  DateTime?
+  id              Int       @id @default(autoincrement())
+  remarks         String?
+  rejectionReason String?
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
 
   userId      Int
   statusId    Int
   reviewedBy  Int?
+  barangayId  Int?
 
   // Relations
   user        User      @relation("UserRequests", fields: [userId], references: [id])
   status      VerificationRequestStatus @relation(fields: [statusId], references: [id])
   reviewer    User?     @relation("UserReviewed", fields: [reviewedBy], references: [id])
+  barangay    Barangay? @relation(fields: [barangayId], references: [id])
 
   documents   VerificationRequestDocuments[]
 }

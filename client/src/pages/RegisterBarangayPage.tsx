@@ -41,11 +41,12 @@ interface VerificationRequest {
   status: { name: string };
   submittedAt: string;
   remarks: string | null;
+  rejectionReason: string | null;
+  barangay: { id: number; name: string } | null;
   user: {
     firstName: string;
     lastName: string;
     email: string;
-    barangay: { id: number; name: string } | null;
   };
   documents: Array<{
     id: number;
@@ -208,9 +209,14 @@ export function RegisterBarangayPage() {
     );
   }
 
-  // Show pending verification screen if request exists
+  // Show pending verification screen if request exists (and not resubmitting)
   if (existingRequest) {
-    return <PendingVerification request={existingRequest} />;
+    return (
+      <PendingVerification
+        request={existingRequest}
+        onRequestUpdate={(updatedRequest) => setExistingRequest(updatedRequest)}
+      />
+    );
   }
 
   return (

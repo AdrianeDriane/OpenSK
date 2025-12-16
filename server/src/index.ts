@@ -13,6 +13,7 @@ import announcementRoutes from "./routes/announcement.routes";
 import skOfficialRoutes from "./routes/sk-official.routes";
 import documentRoutes from "./routes/document.routes";
 import inquiryRoutes from "./routes/inquiry.routes";
+import adminRoutes from "./routes/admin.routes";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/sk-officials", skOfficialRoutes);
 app.use("/api/documents", documentRoutes);
 app.use("/api/inquiries", inquiryRoutes);
+app.use("/api/admin", adminRoutes);
 
 app.listen(port, () => {
   console.log(`🚀 OpenSK server running on http://localhost:${port}`);

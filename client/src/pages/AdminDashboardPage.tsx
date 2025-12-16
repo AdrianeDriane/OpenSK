@@ -1,17 +1,51 @@
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import {
-  Users,
-  CheckCircle,
-  Clock,
-  XCircle,
-  LogOut,
-  Shield,
-} from "lucide-react";
+  AdminHeader,
+  StatsCards,
+  VerificationRequestsTable,
+  DocumentPreviewPanel,
+  RejectModal,
+  ApproveModal,
+} from "../components/adminDashboardPage";
+import {
+  getDashboardStats,
+  getVerificationRequests,
+  approveVerificationRequest,
+  rejectVerificationRequest,
+  type DashboardStats,
+  type VerificationRequest,
+} from "../api/admin";
 
 export function AdminDashboardPage() {
   // Get user info from localStorage
   const authUser = localStorage.getItem("auth_user");
   const user = authUser ? JSON.parse(authUser) : null;
+
+  // State
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [requests, setRequests] = useState<VerificationRequest[]>([]);
+  const [isLoadingStats, setIsLoadingStats] = useState(true);
+  const [isLoadingRequests, setIsLoadingRequests] = useState(true);
+  const [processingId, setProcessingId] = useState<number | null>(null);
+
+  // Document Preview Panel state
+  const [previewRequest, setPreviewRequest] =
+    useState<VerificationRequest | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  // Reject Modal state
+  const [rejectModalOpen, setRejectModalOpen] = useState(false);
+  const [rejectingRequest, setRejectingRequest] =
+    useState<VerificationRequest | null>(null);
+  const [isRejecting, setIsRejecting] = useState(false);
+
+  // Approve Modal state
+  const [approveModalOpen, setApproveModalOpen] = useState(false);
+  const [approvingRequest, setApprovingRequest] =
+    useState<VerificationRequest | null>(null);
+  const [isApproving, setIsApproving] = useState(false);
 
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
@@ -19,72 +53,126 @@ export function AdminDashboardPage() {
     window.location.href = "/login";
   };
 
-  const stats = [
-    {
-      label: "Pending Verifications",
-      value: "12",
-      icon: Clock,
-      color: "text-yellow-600",
-      bg: "bg-yellow-50",
-    },
-    {
-      label: "Approved Barangays",
-      value: "45",
-      icon: CheckCircle,
-      color: "text-green-600",
-      bg: "bg-green-50",
-    },
-    {
-      label: "Rejected Requests",
-      value: "3",
-      icon: XCircle,
-      color: "text-red-600",
-      bg: "bg-red-50",
-    },
-    {
-      label: "Total SK Officials",
-      value: "156",
-      icon: Users,
-      color: "text-blue-600",
-      bg: "bg-blue-50",
-    },
-  ];
+  // Fetch data
+  const fetchStats = useCallback(async () => {
+    try {
+      setIsLoadingStats(true);
+      const data = await getDashboardStats();
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    } finally {
+      setIsLoadingStats(false);
+    }
+  }, []);
+
+  const fetchRequests = useCallback(async () => {
+    try {
+      setIsLoadingRequests(true);
+      const data = await getVerificationRequests();
+      setRequests(data);
+    } catch (error) {
+      console.error("Failed to fetch requests:", error);
+    } finally {
+      setIsLoadingRequests(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+    fetchRequests();
+  }, [fetchStats, fetchRequests]);
+
+  // Handlers
+  const handleViewDocuments = (request: VerificationRequest) => {
+    setPreviewRequest(request);
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    setTimeout(() => setPreviewRequest(null), 300); // Clear after animation
+  };
+
+  const handleApprove = (id: number) => {
+    const request = requests.find((r) => r.id === id);
+    if (request) {
+      setApprovingRequest(request);
+      setApproveModalOpen(true);
+    }
+  };
+
+  const handleApproveConfirm = async () => {
+    if (!approvingRequest) return;
+
+    try {
+      setIsApproving(true);
+      setProcessingId(approvingRequest.id);
+      await approveVerificationRequest(approvingRequest.id);
+      setApproveModalOpen(false);
+      setApprovingRequest(null);
+      toast.success("Verification request approved successfully!");
+      // Refresh data
+      await Promise.all([fetchStats(), fetchRequests()]);
+    } catch (error) {
+      console.error("Failed to approve request:", error);
+      const message =
+        (error as { response?: { data?: { error?: string } } }).response?.data
+          ?.error || "Failed to approve request. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsApproving(false);
+      setProcessingId(null);
+    }
+  };
+
+  const handleApproveModalClose = () => {
+    if (!isApproving) {
+      setApproveModalOpen(false);
+      setApprovingRequest(null);
+    }
+  };
+
+  const handleRejectClick = (id: number) => {
+    const request = requests.find((r) => r.id === id);
+    if (request) {
+      setRejectingRequest(request);
+      setRejectModalOpen(true);
+    }
+  };
+
+  const handleRejectConfirm = async (reason: string) => {
+    if (!rejectingRequest) return;
+
+    try {
+      setIsRejecting(true);
+      await rejectVerificationRequest(rejectingRequest.id, reason);
+      setRejectModalOpen(false);
+      setRejectingRequest(null);
+      toast.success("Verification request rejected.");
+      // Refresh data
+      await Promise.all([fetchStats(), fetchRequests()]);
+    } catch (error) {
+      console.error("Failed to reject request:", error);
+      const message =
+        (error as { response?: { data?: { error?: string } } }).response?.data
+          ?.error || "Failed to reject request. Please try again.";
+      toast.error(message);
+    } finally {
+      setIsRejecting(false);
+    }
+  };
+
+  const handleRejectModalClose = () => {
+    if (!isRejecting) {
+      setRejectModalOpen(false);
+      setRejectingRequest(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
-      {/* Admin Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-[#203972] rounded-lg flex items-center justify-center">
-                <Shield className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-[#203972]">
-                  OpenSK Admin
-                </h1>
-                <p className="text-xs text-gray-500">Administration Panel</p>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {user && (
-                <span className="text-sm text-gray-600">
-                  {user.firstName} {user.lastName}
-                </span>
-              )}
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-[#db1d34] hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AdminHeader user={user} onLogout={handleLogout} />
 
       <main className="grow py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,47 +191,18 @@ export function AdminDashboardPage() {
             </p>
           </motion.div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {stats.map((stat, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex items-center justify-between"
-              >
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-1">
-                    {stat.label}
-                  </p>
-                  <p className="text-3xl font-bold text-gray-900">
-                    {stat.value}
-                  </p>
-                </div>
-                <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center ${stat.bg}`}
-                >
-                  <stat.icon className={`w-6 h-6 ${stat.color}`} />
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {/* Stats Cards */}
+          <StatsCards stats={stats} isLoading={isLoadingStats} />
 
-          {/* Pending Verifications Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
-          >
-            <h2 className="text-xl font-bold text-[#203972] mb-4">
-              Pending Verification Requests
-            </h2>
-            <p className="text-gray-500 text-center py-8">
-              Verification management features coming soon...
-            </p>
-          </motion.div>
+          {/* Verification Requests Table */}
+          <VerificationRequestsTable
+            requests={requests}
+            isLoading={isLoadingRequests}
+            onViewDocuments={handleViewDocuments}
+            onApprove={handleApprove}
+            onReject={handleRejectClick}
+            processingId={processingId}
+          />
         </div>
       </main>
 
@@ -155,6 +214,40 @@ export function AdminDashboardPage() {
           </p>
         </div>
       </footer>
+
+      {/* Document Preview Panel */}
+      <DocumentPreviewPanel
+        isOpen={isPreviewOpen}
+        request={previewRequest}
+        onClose={handleClosePreview}
+      />
+
+      {/* Reject Modal */}
+      <RejectModal
+        isOpen={rejectModalOpen}
+        applicantName={
+          rejectingRequest
+            ? `${rejectingRequest.user.firstName} ${rejectingRequest.user.lastName}`
+            : ""
+        }
+        onClose={handleRejectModalClose}
+        onConfirm={handleRejectConfirm}
+        isLoading={isRejecting}
+      />
+
+      {/* Approve Modal */}
+      <ApproveModal
+        isOpen={approveModalOpen}
+        applicantName={
+          approvingRequest
+            ? `${approvingRequest.user.firstName} ${approvingRequest.user.lastName}`
+            : ""
+        }
+        barangayName={approvingRequest?.barangay?.name || ""}
+        onClose={handleApproveModalClose}
+        onConfirm={handleApproveConfirm}
+        isLoading={isApproving}
+      />
     </div>
   );
 }
