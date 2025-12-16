@@ -164,7 +164,7 @@ export const BarangayPortalPage = () => {
       }}
     >
       {/* Navbar */}
-      <PortalNavbar barangayName={barangayName} />
+      <PortalNavbar barangayName={barangayName} slug={slug} />
 
       {/* Hero Section */}
       <section

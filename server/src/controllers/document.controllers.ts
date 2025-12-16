@@ -231,3 +231,49 @@ export const getDocumentTypeSummaryBySlug = async (
     res.status(500).json({ error: "Failed to fetch document summary" });
   }
 };
+
+export const getAllDocumentsBySlug = async (req: Request, res: Response) => {
+  try {
+    const { slug } = req.params as { slug?: string };
+
+    if (!slug) {
+      return res.status(400).json({ error: "Barangay slug is required" });
+    }
+
+    const barangay = await prisma.barangay.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (!barangay) {
+      return res.status(404).json({ error: "Barangay not found" });
+    }
+
+    const documents = await prisma.document.findMany({
+      where: { barangayId: barangay.id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        year: true,
+        fileUrl: true,
+        createdAt: true,
+        type: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return res.status(200).json({
+      barangaySlug: slug,
+      documents,
+    });
+  } catch (err) {
+    console.error("Error fetching all documents by slug:", err);
+    res.status(500).json({ error: "Failed to fetch documents" });
+  }
+};

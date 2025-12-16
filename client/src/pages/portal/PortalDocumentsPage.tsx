@@ -99,7 +99,10 @@ export const PortalDocumentsPage = () => {
         backgroundColor: "var(--color-background)",
       }}
     >
-      <PortalNavbar barangayName={barangayName || slug || "Barangay"} />
+      <PortalNavbar
+        barangayName={barangayName || slug || "Barangay"}
+        slug={slug}
+      />
 
       <main className="flex-1 px-4 py-12">
         <div className="mx-auto max-w-6xl">

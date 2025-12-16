@@ -209,7 +209,9 @@ export const ThemeSetupPage = () => {
       <div className="min-h-screen bg-linear-to-br from-[#f7f9ff] via-white to-[#eef2ff] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#203972] border-t-transparent" />
-          <p className="text-sm text-slate-600">Loading theme configuration...</p>
+          <p className="text-sm text-slate-600">
+            Loading theme configuration...
+          </p>
         </div>
       </div>
     );

@@ -7,6 +7,7 @@ import {
   deleteDocument,
   getDocumentsBySlugAndType,
   getDocumentTypeSummaryBySlug,
+  getAllDocumentsBySlug,
 } from "../controllers/document.controllers";
 
 const router = Router();
@@ -14,6 +15,7 @@ const upload = multer();
 
 // Public routes
 router.get("/public/:slug/types", getDocumentTypeSummaryBySlug);
+router.get("/public/:slug/all", getAllDocumentsBySlug);
 router.get("/public/:slug/:typeName", getDocumentsBySlugAndType);
 
 // Authenticated routes (SK Official only)

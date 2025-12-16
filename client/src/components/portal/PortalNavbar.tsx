@@ -1,10 +1,11 @@
-import { Search } from "lucide-react";
+import { DocumentSearchDropdown } from "./DocumentSearchDropdown";
 
 interface PortalNavbarProps {
   barangayName: string;
+  slug?: string;
 }
 
-export const PortalNavbar = ({ barangayName }: PortalNavbarProps) => {
+export const PortalNavbar = ({ barangayName, slug }: PortalNavbarProps) => {
   return (
     <header
       className="sticky top-0 z-50 border-b border-gray-100"
@@ -42,14 +43,20 @@ export const PortalNavbar = ({ barangayName }: PortalNavbarProps) => {
           </div>
         </div>
 
-        <div className="hidden items-center space-x-1 rounded-full bg-gray-100 px-4 py-2 md:flex md:w-64">
-          <Search className="h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search documents..."
-            className="w-full border-none bg-transparent text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-0"
-            style={{ fontFamily: "var(--font-body)" }}
-          />
+        {/* Search Documents Dropdown */}
+        <div className="hidden md:flex">
+          {slug ? (
+            <DocumentSearchDropdown slug={slug} />
+          ) : (
+            <div className="flex items-center space-x-1 rounded-full bg-gray-100 px-4 py-2 md:w-64 opacity-50 cursor-not-allowed">
+              <span
+                className="text-sm text-gray-400"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                Search documents...
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center space-x-4">
