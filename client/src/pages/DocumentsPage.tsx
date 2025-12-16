@@ -3,8 +3,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import { DashboardHeader } from "../components/skDashboardPage/DashboardHeader";
 import api from "../api/axios";
-import { FileText, Trash2, UploadCloud, Eye, AlertCircle } from "lucide-react";
+import {
+  FileText,
+  Trash2,
+  UploadCloud,
+  Eye,
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
 import { Footer } from "../components/landingPage/Footer";
+import { useNavigate } from "react-router-dom";
 
 type DocumentType = { id: number; name: string };
 type Document = {
@@ -180,6 +188,8 @@ export function DocumentsPage() {
     );
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
       <DashboardHeader />
@@ -191,9 +201,15 @@ export function DocumentsPage() {
             transition={{ duration: 0.4 }}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-[#203972] font-serif mb-2">
-              Documents
-            </h1>
+            <div className="flex flex-row">
+              <ArrowLeft
+                className="w-8 h-8 text-[#203972] mr-3 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              />
+              <h1 className="text-3xl font-bold text-[#203972] font-serif mb-2">
+                Documents
+              </h1>
+            </div>
             <p className="text-gray-600">
               Upload and manage official barangay documents.
             </p>

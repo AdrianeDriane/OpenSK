@@ -6,11 +6,13 @@ import {
   Clock,
   ChevronLeft,
   ChevronRight,
+  ArrowLeft,
 } from "lucide-react";
 import api from "../api/axios";
 import toast, { Toaster } from "react-hot-toast";
 import { DashboardHeader } from "../components/skDashboardPage/DashboardHeader";
 import { Footer } from "../components/landingPage/Footer";
+import { useNavigate } from "react-router-dom";
 
 interface Inquiry {
   id: number;
@@ -129,6 +131,8 @@ export function InquiriesPage() {
     });
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
       <Toaster position="top-right" />
@@ -143,9 +147,15 @@ export function InquiriesPage() {
             transition={{ duration: 0.5 }}
             className="mb-8"
           >
-            <h1 className="text-3xl font-bold text-[#203972] font-serif mb-2">
-              Inquiries Management
-            </h1>
+            <div className="flex flex-row">
+              <ArrowLeft
+                className="w-8 h-8 text-[#203972] mr-3 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              />
+              <h1 className="text-3xl font-bold text-[#203972] font-serif mb-2">
+                Inquiries Management
+              </h1>
+            </div>
             <p className="text-gray-600">
               View and respond to inquiries from your constituents.
             </p>

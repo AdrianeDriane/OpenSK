@@ -83,7 +83,9 @@ export function ApproveModal({
                     <li>Mark the user as verified</li>
                     <li>
                       Assign them to{" "}
-                      <span className="font-medium">{barangayName || "the requested barangay"}</span>
+                      <span className="font-medium">
+                        {barangayName || "the requested barangay"}
+                      </span>
                     </li>
                     <li>Grant them access to the SK Dashboard</li>
                   </ul>

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Megaphone, Calendar, User, Loader2 } from "lucide-react";
+import { Megaphone, Calendar, User, Loader2, ArrowLeft } from "lucide-react";
 import { DashboardHeader } from "../components/skDashboardPage/DashboardHeader";
 import { Footer } from "../components/landingPage/Footer";
 import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 interface Announcement {
   id: number;
@@ -39,6 +40,8 @@ export function AnnouncementsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+
+  const navigate = useNavigate();
 
   // Fetch announcements
   const fetchAnnouncements = async (page = 1) => {
@@ -130,6 +133,10 @@ export function AnnouncementsPage() {
             className="mb-10"
           >
             <div className="flex items-center mb-2">
+              <ArrowLeft
+                className="w-8 h-8 text-[#203972] mr-3 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              />
               <Megaphone className="w-8 h-8 text-[#203972] mr-3" />
               <h1 className="text-3xl font-bold text-[#203972] font-serif">
                 Upload Announcements

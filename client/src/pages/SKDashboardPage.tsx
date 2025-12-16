@@ -1,36 +1,59 @@
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import {
   Megaphone,
   FileText,
-  Briefcase,
   Users,
   MessageSquare,
   TrendingUp,
-  Clock,
-  AlertCircle,
 } from "lucide-react";
 import { DashboardHeader } from "../components/skDashboardPage/DashboardHeader";
 import { DashboardCard } from "../components/skDashboardPage/DashboardCard";
 import { Footer } from "../components/landingPage/Footer";
+import { getDashboardStats } from "../api/dashboard";
+import type { DashboardStats } from "../api/dashboard";
+
 export function SKDashboardPage() {
-  const stats = [
+  const [stats, setStats] = useState<DashboardStats>({
+    pendingInquiries: 0,
+    activeOfficials: 0,
+    documentsUploaded: 0,
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDashboardStats();
+        setStats(data);
+      } catch (error) {
+        console.error("Error fetching dashboard stats:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+  const dashboardStats = [
     {
       label: "Pending Inquiries",
-      value: "5",
+      value: loading ? "..." : stats.pendingInquiries.toString(),
       icon: MessageSquare,
       color: "text-[#db1d34]",
       bg: "bg-red-50",
     },
     {
-      label: "Active Projects",
-      value: "8",
-      icon: Briefcase,
+      label: "Active Officials",
+      value: loading ? "..." : stats.activeOfficials.toString(),
+      icon: Users,
       color: "text-[#203972]",
       bg: "bg-blue-50",
     },
     {
       label: "Documents Uploaded",
-      value: "124",
+      value: loading ? "..." : stats.documentsUploaded.toString(),
       icon: FileText,
       color: "text-green-600",
       bg: "bg-green-50",
@@ -68,7 +91,7 @@ export function SKDashboardPage() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            {stats.map((stat, index) => (
+            {dashboardStats.map((stat, index) => (
               <motion.div
                 key={index}
                 initial={{
@@ -124,13 +147,6 @@ export function SKDashboardPage() {
                 delay={0.2}
               />
               <DashboardCard
-                title="Manage Projects"
-                description="Update status of ongoing projects and add new initiatives."
-                icon={Briefcase}
-                href="/projects"
-                delay={0.3}
-              />
-              <DashboardCard
                 title="SK Council Profile"
                 description="Update council member information, roles, and contact details."
                 icon={Users}
@@ -145,43 +161,8 @@ export function SKDashboardPage() {
                 variant="accent"
                 delay={0.5}
               />
-              <DashboardCard
-                title="Activity Logs"
-                description="View history of uploads, edits, and system activities."
-                icon={Clock}
-                href="/logs"
-                variant="secondary"
-                delay={0.6}
-              />
             </div>
           </div>
-
-          {/* Recent Activity / Alerts (Optional Context) */}
-          <motion.div
-            initial={{
-              opacity: 0,
-            }}
-            animate={{
-              opacity: 1,
-            }}
-            transition={{
-              duration: 0.5,
-              delay: 0.7,
-            }}
-            className="bg-blue-50 rounded-xl p-6 border border-blue-100 flex items-start"
-          >
-            <AlertCircle className="w-6 h-6 text-[#203972] mr-4 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="text-lg font-bold text-[#203972] mb-1">
-                System Notice
-              </h3>
-              <p className="text-sm text-blue-800">
-                Please ensure all SALN documents for the current fiscal year are
-                uploaded before the end of the month to maintain compliance
-                rating.
-              </p>
-            </div>
-          </motion.div>
         </div>
       </main>
 

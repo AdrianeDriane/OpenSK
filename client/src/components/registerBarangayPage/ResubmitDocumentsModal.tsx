@@ -140,8 +140,7 @@ export function ResubmitDocumentsModal({
                 {/* Valid ID Upload */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Valid Government ID{" "}
-                    <span className="text-red-500">*</span>
+                    Valid Government ID <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="file"
@@ -172,7 +171,9 @@ export function ResubmitDocumentsModal({
                       {validIdFile ? "✓ File Selected" : "Upload Valid ID"}
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
-                      {validIdFile ? validIdFile.name : "PNG, JPG, PDF up to 5MB"}
+                      {validIdFile
+                        ? validIdFile.name
+                        : "PNG, JPG, PDF up to 5MB"}
                     </p>
                   </label>
                 </div>
@@ -226,7 +227,9 @@ export function ResubmitDocumentsModal({
                     <div className="mx-auto h-8 w-8 bg-white rounded-full flex items-center justify-center shadow-sm mb-2">
                       <FileText
                         className={`h-4 w-4 ${
-                          supportingDocFile ? "text-green-600" : "text-[#203972]"
+                          supportingDocFile
+                            ? "text-green-600"
+                            : "text-[#203972]"
                         }`}
                       />
                     </div>

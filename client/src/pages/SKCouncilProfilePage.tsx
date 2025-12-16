@@ -8,11 +8,13 @@ import {
   Phone,
   Link as LinkIcon,
   Trash2,
+  ArrowLeft,
 } from "lucide-react";
 import { DashboardHeader } from "../components/skDashboardPage/DashboardHeader";
 import { Footer } from "../components/landingPage/Footer";
 import api from "../api/axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 interface SKOfficial {
   id: number;
@@ -146,6 +148,8 @@ export function SKCouncilProfilePage() {
     setConfirmDeleteId(null);
   };
 
+  const navigate = useNavigate();
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900 flex flex-col">
       <DashboardHeader />
@@ -159,6 +163,10 @@ export function SKCouncilProfilePage() {
             className="mb-10 flex items-center justify-between flex-wrap gap-4"
           >
             <div className="flex items-center space-x-3">
+              <ArrowLeft
+                className="w-8 h-8 text-[#203972] mr-3 cursor-pointer"
+                onClick={() => navigate("/dashboard")}
+              />
               <div className="w-10 h-10 rounded-lg bg-blue-100 text-[#203972] flex items-center justify-center">
                 <Users className="w-6 h-6" />
               </div>

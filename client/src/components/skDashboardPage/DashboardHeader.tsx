@@ -1,22 +1,66 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { LogOut, User, Bell } from "lucide-react";
+import { LogOut, User } from "lucide-react";
+import api from "../../api/axios";
+import SKLogo from "../../assets/icons/sk_logo.png";
 
-interface DashboardHeaderProps {
-  userName?: string;
-  userRole?: string;
-  barangayName?: string;
+interface AuthUser {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  barangayId: number;
+  roleId: number;
+  verified: boolean;
+  googleId: string;
 }
 
-export function DashboardHeader({
-  userName = "Juan Dela Cruz",
-  userRole = "SK Chairperson",
-  barangayName = "Barangay Pari-an",
-}: DashboardHeaderProps) {
+interface Barangay {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export function DashboardHeader() {
   const navigate = useNavigate();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [userName, setUserName] = useState("Loading...");
+  const [barangayName, setBarangayName] = useState("");
+  const userRole = "SK Official";
+
+  // Fetch user data and barangay info
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Get user from localStorage
+        const authUserStr = localStorage.getItem("auth_user");
+        if (authUserStr) {
+          const authUser: AuthUser = JSON.parse(authUserStr);
+          setUserName(`${authUser.firstName} ${authUser.lastName}`);
+
+          // Fetch barangay data
+          const response = await api.get("/barangays");
+          if (response.data.success) {
+            const barangays: Barangay[] = response.data.data;
+            const userBarangay = barangays.find(
+              (b) => b.id === authUser.barangayId
+            );
+            if (userBarangay) {
+              setBarangayName(userBarangay.name);
+            } else {
+              setBarangayName("");
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -47,28 +91,21 @@ export function DashboardHeader({
           className="flex items-center cursor-pointer"
           onClick={() => navigate("/dashboard")}
         >
-          <div className="w-8 h-8 bg-[#203972] rounded-md flex items-center justify-center mr-3">
-            <span className="text-white font-serif font-bold text-lg">O</span>
+          <div className="w-10.5 h-10.5 bg-[#203972] rounded-full flex items-center justify-center mr-2">
+            <img src={SKLogo} className="w-10 h-10" />
           </div>
           <div className="flex flex-col">
             <span className="text-lg font-bold text-[#203972] leading-none font-serif">
               OpenSK
             </span>
             <span className="text-xs text-gray-500 font-medium tracking-wide uppercase mt-0.5">
-              {barangayName}
+              Barangay {barangayName}
             </span>
           </div>
         </div>
 
         {/* User Actions */}
         <div className="flex items-center space-x-6">
-          <button className="relative text-gray-500 hover:text-[#203972] transition-colors">
-            <Bell className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#db1d34] rounded-full border-2 border-white"></span>
-          </button>
-
-          <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
-
           <div
             className="flex items-center space-x-3 relative"
             ref={dropdownRef}
