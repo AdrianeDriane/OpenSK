@@ -6,6 +6,7 @@ import { LoginPage } from "./components/registerBarangayPage/LoginPage";
 import { RegisterBarangayPage } from "./pages/RegisterBarangayPage";
 import AuthSuccess from "./components/auth/AuthSuccess";
 import { ProtectedSKRoute } from "./components/auth/ProtectedSKRoute";
+import { ProtectedAdminRoute } from "./components/auth/ProtectedAdminRoute";
 import { PublicRoute } from "./components/auth/PublicRoute";
 import { VerificationOnlyRoute } from "./components/auth/VerificationOnlyRoute";
 import { ThemeSetupPage } from "./components/theme/ThemeSetupPage";
@@ -13,6 +14,7 @@ import { BarangayPortalPage } from "./pages/portal/BarangayPortalPage";
 import { PortalAnnouncementsPage } from "./pages/portal/PortalAnnouncementsPage";
 import { PortalDocumentsPage } from "./pages/portal/PortalDocumentsPage";
 import { SKDashboardPage } from "./pages/SKDashboardPage";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AnnouncementsPage } from "./pages/AnnouncementsPage";
 import { SKCouncilProfilePage } from "./pages/SKCouncilProfilePage";
 import { DocumentsPage } from "./pages/DocumentsPage";
@@ -113,6 +115,16 @@ function App() {
       <Route
         path="/portal/:slug/documents/:typeName"
         element={<PortalDocumentsPage />}
+      />
+
+      {/* Admin Routes */}
+      <Route
+        path="/admin/dashboard"
+        element={
+          <ProtectedAdminRoute>
+            <AdminDashboardPage />
+          </ProtectedAdminRoute>
+        }
       />
 
       {/* Default route (change as needed) */}

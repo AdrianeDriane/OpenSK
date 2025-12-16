@@ -7,11 +7,13 @@ interface ProtectedSKRouteProps {
 }
 
 /**
- * Protected route component specifically for SK Officials
+ * Protected route component specifically for SK Officials (roleId = 1)
  *
  * Logic:
- * 1. If user is not an SK_Official → allow normal access
- * 2. If user is SK_Official:
+ * 1. If no token → redirect to login
+ * 2. If user is Admin (roleId = 2) → redirect to /admin/dashboard
+ * 3. If user is SK_Official (roleId = 1):
+ *    - If not verified → redirect to /register
  *    - Check theme status via API
  *    - If hasTheme = false OR isDefaultTheme = true → redirect to /theme_customization
  *    - If hasTheme = true AND isDefaultTheme = false → allow access to /dashboard
@@ -44,11 +46,12 @@ export function ProtectedSKRoute({ children }: ProtectedSKRouteProps) {
 
   // For SK Officials, check theme status
   useEffect(() => {
-    // Skip if not SK_Official
-    if (role !== 1 || !userId) {
+    // Skip checks for non-SK Officials or missing data
+    if (!token || role !== 1 || !userId || !verified) {
       setIsLoading(false);
       return;
     }
+
     const checkTheme = async () => {
       try {
         setIsLoading(true);
@@ -90,22 +93,28 @@ export function ProtectedSKRoute({ children }: ProtectedSKRouteProps) {
     };
 
     checkTheme();
-  }, [userId, role, location.pathname]);
+  }, [userId, role, verified, token, location.pathname]);
 
-  // Early returns after hooks
-  // If no token, redirect to login
+  // === Early returns AFTER hooks ===
+
+  // No token → redirect to login
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // If user is not verified, redirect to register
-  if (!verified) {
-    return <Navigate to="/register" replace />;
+  // Admin users should not access SK Official routes
+  if (role === 2) {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
-  // If user is not SK_Official, allow normal access immediately
+  // Non-SK Official users (unknown role) → redirect to login
   if (role !== 1) {
-    return children;
+    return <Navigate to="/login" replace />;
+  }
+
+  // SK Official not verified → redirect to register
+  if (!verified) {
+    return <Navigate to="/register" replace />;
   }
 
   // Loading state (only for SK Officials)
@@ -140,7 +149,7 @@ export function ProtectedSKRoute({ children }: ProtectedSKRouteProps) {
     // Continue rendering - don't block access on API errors
   }
 
-  // Redirect logic
+  // Redirect logic for theme customization
   if (redirectPath && redirectPath !== location.pathname) {
     return <Navigate to={redirectPath} replace />;
   }
