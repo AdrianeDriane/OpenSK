@@ -8,7 +8,7 @@ import { SKOfficialRole } from "../../prisma/generated/enums";
 interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
-    barangayId: number;
+    barangayId: number | null;
   };
   file?: Express.Multer.File;
 }

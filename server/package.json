@@ -2,11 +2,11 @@
   "name": "opensk-server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc",
-    "start": "node dist/index.js"
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/index.js"
   },
   "keywords": [],
   "author": "",
@@ -37,3 +37,4 @@
     "typescript": "^5.9.3"
   }
 }
+

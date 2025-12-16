@@ -4,7 +4,7 @@ import { prisma } from "../db/prisma";
 interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
-    barangayId: number;
+    barangayId: number | null;
   };
 }
 
