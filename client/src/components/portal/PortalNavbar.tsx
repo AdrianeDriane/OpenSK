@@ -1,11 +1,29 @@
 import { DocumentSearchDropdown } from "./DocumentSearchDropdown";
+import SKLogo from "../../assets/icons/sk_logo.png";
 
 interface PortalNavbarProps {
   barangayName: string;
   slug?: string;
+  onScrollToSection?: (sectionId: string) => void;
 }
 
-export const PortalNavbar = ({ barangayName, slug }: PortalNavbarProps) => {
+export const PortalNavbar = ({
+  barangayName,
+  slug,
+  onScrollToSection,
+}: PortalNavbarProps) => {
+  const handleScrollTo = (sectionId: string) => {
+    if (onScrollToSection) {
+      onScrollToSection(sectionId);
+    } else {
+      // Fallback: try to scroll directly if no callback provided
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
     <header
       className="sticky top-0 z-50 border-b border-gray-100"
@@ -14,15 +32,10 @@ export const PortalNavbar = ({ barangayName, slug }: PortalNavbarProps) => {
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center">
           <div
-            className="mr-3 flex h-8 w-8 items-center justify-center rounded-md"
+            className="mr-3 flex h-10 w-10 items-center justify-center rounded-full"
             style={{ backgroundColor: "var(--color-primary)" }}
           >
-            <span
-              className="font-serif text-lg font-bold text-white"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              O
-            </span>
+            <img src={SKLogo} alt="SK Logo" className="h-9 w-9" />
           </div>
           <div className="flex flex-col">
             <span
@@ -61,18 +74,14 @@ export const PortalNavbar = ({ barangayName, slug }: PortalNavbarProps) => {
 
         <div className="flex items-center space-x-4">
           <button
+            onClick={() => handleScrollTo("documents-section")}
             className="text-sm font-medium text-gray-600 transition hover:opacity-80"
             style={{ fontFamily: "var(--font-body)" }}
           >
             Documents
           </button>
           <button
-            className="text-sm font-medium text-gray-600 transition hover:opacity-80"
-            style={{ fontFamily: "var(--font-body)" }}
-          >
-            Projects
-          </button>
-          <button
+            onClick={() => handleScrollTo("inquiry-section")}
             className="rounded-md px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:opacity-90"
             style={{
               backgroundColor: "var(--color-primary)",

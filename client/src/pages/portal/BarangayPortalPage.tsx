@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useRef } from "react";
@@ -113,6 +113,13 @@ export const BarangayPortalPage = () => {
 
   const barangayName = data?.barangayName || "[Barangay Name]";
 
+  const scrollToSection = useCallback((sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <div
@@ -164,7 +171,11 @@ export const BarangayPortalPage = () => {
       }}
     >
       {/* Navbar */}
-      <PortalNavbar barangayName={barangayName} slug={slug} />
+      <PortalNavbar
+        barangayName={barangayName}
+        slug={slug}
+        onScrollToSection={scrollToSection}
+      />
 
       {/* Hero Section */}
       <section
@@ -221,25 +232,29 @@ export const BarangayPortalPage = () => {
 
               <div className="flex flex-wrap gap-4">
                 <button
-                  className="px-6 py-3 rounded-lg font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                  onClick={() => scrollToSection("announcements-section")}
+                  className="px-6 py-3 font-bold transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                   style={{
                     backgroundColor: "white",
                     color: "var(--color-primary)",
                     fontFamily: "var(--font-body)",
+                    borderRadius: "var(--btn-primary-radius)",
                   }}
                 >
-                  View Latest Reports
+                  Latest Announcements
                 </button>
                 <button
-                  className="px-6 py-3 rounded-lg font-medium transition-all hover:bg-white/10"
+                  onClick={() => scrollToSection("inquiry-section")}
+                  className="px-6 py-3 font-medium transition-all hover:bg-white/10"
                   style={{
                     backgroundColor: "transparent",
                     border: "1px solid rgba(255, 255, 255, 0.3)",
                     color: "white",
                     fontFamily: "var(--font-body)",
+                    borderRadius: "var(--btn-secondary-radius)",
                   }}
                 >
-                  Contact Council
+                  Submit Inquiry
                 </button>
               </div>
             </motion.div>
@@ -248,7 +263,7 @@ export const BarangayPortalPage = () => {
       </section>
 
       {/* Announcements Section */}
-      <section className="py-16">
+      <section id="announcements-section" className="py-16">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -262,7 +277,7 @@ export const BarangayPortalPage = () => {
       </section>
 
       {/* Documents Section */}
-      <section className="bg-slate-50 py-16">
+      <section id="documents-section" className="bg-slate-50 py-16">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -376,7 +391,7 @@ export const BarangayPortalPage = () => {
       </section>
 
       {/* Inquiry Section */}
-      <section className="py-16">
+      <section id="inquiry-section" className="py-16">
         <div className="mx-auto max-w-6xl px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

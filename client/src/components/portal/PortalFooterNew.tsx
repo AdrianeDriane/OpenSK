@@ -1,4 +1,5 @@
 import { Facebook, Twitter, Mail } from "lucide-react";
+import SKLogo from "../../assets/icons/sk_logo.png";
 
 interface PortalFooterNewProps {
   barangayName: string;
@@ -20,15 +21,7 @@ export const PortalFooterNew = ({ barangayName }: PortalFooterNewProps) => {
                 className="mr-3 flex h-10 w-10 items-center justify-center rounded-full"
                 style={{ backgroundColor: "var(--color-accent)" }}
               >
-                <span
-                  className="font-serif text-lg font-bold"
-                  style={{
-                    color: "var(--color-primary)",
-                    fontFamily: "var(--font-heading)",
-                  }}
-                >
-                  O
-                </span>
+                <img src={SKLogo} alt="SK Logo" className="h-9 w-9" />
               </div>
               <span
                 className="text-2xl font-bold tracking-wide"
