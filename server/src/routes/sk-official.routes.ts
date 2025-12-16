@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { requireAuth } from "../middlewares/auth.middleware";
+import { requireRole } from "../middlewares/auth.middleware";
 import {
   createOfficial,
   deleteOfficial,
@@ -17,9 +17,9 @@ const upload = multer({
 // Public route
 router.get("/public/:slug", getOfficialsBySlug);
 
-// Authenticated routes
-router.get("/", requireAuth, listOfficials);
-router.post("/", requireAuth, upload.single("image"), createOfficial);
-router.delete("/:id", requireAuth, deleteOfficial);
+// Authenticated routes (SK Official only)
+router.get("/", requireRole([1]), listOfficials);
+router.post("/", requireRole([1]), upload.single("image"), createOfficial);
+router.delete("/:id", requireRole([1]), deleteOfficial);
 
 export default router;

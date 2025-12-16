@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { requireAuth } from "../middlewares/auth.middleware";
+import { requireRole } from "../middlewares/auth.middleware";
 import {
   listDocuments,
   createDocument,
@@ -16,9 +16,9 @@ const upload = multer();
 router.get("/public/:slug/types", getDocumentTypeSummaryBySlug);
 router.get("/public/:slug/:typeName", getDocumentsBySlugAndType);
 
-// Authenticated routes
-router.get("/", requireAuth, listDocuments);
-router.post("/", requireAuth, upload.single("file"), createDocument);
-router.delete("/:id", requireAuth, deleteDocument);
+// Authenticated routes (SK Official only)
+router.get("/", requireRole([1]), listDocuments);
+router.post("/", requireRole([1]), upload.single("file"), createDocument);
+router.delete("/:id", requireRole([1]), deleteDocument);
 
 export default router;

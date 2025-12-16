@@ -1,6 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
-import { requireAuth } from "../middlewares/auth.middleware";
+import { requireRole } from "../middlewares/auth.middleware";
 import {
   submitVerificationRequest,
   getMyVerificationRequest,
@@ -19,10 +19,15 @@ const verificationUpload = upload.fields([
   { name: "supportingDoc", maxCount: 1 },
 ]);
 
-// GET /api/verification-requests/me - Get current user's verification request
-router.get("/me", requireAuth, getMyVerificationRequest);
+// GET /api/verification-requests/me - Get current user's verification request (SK Official only)
+router.get("/me", requireRole([1]), getMyVerificationRequest);
 
-// POST /api/verification-requests - Submit a new verification request
-router.post("/", requireAuth, verificationUpload, submitVerificationRequest);
+// POST /api/verification-requests - Submit a new verification request (SK Official only)
+router.post(
+  "/",
+  requireRole([1]),
+  verificationUpload,
+  submitVerificationRequest
+);
 
 export default router;

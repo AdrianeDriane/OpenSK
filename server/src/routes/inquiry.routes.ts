@@ -4,15 +4,15 @@ import {
   getInquiries,
   resolveInquiry,
 } from "../controllers/inquiry.controllers";
-import { requireAuth } from "../middlewares/auth.middleware";
+import { requireRole } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-// GET /api/inquiries - Get list of inquiries for SK Official's barangay (protected)
-router.get("/", requireAuth, getInquiries);
+// GET /api/inquiries - Get list of inquiries for SK Official's barangay (SK Official only)
+router.get("/", requireRole([1]), getInquiries);
 
-// PATCH /api/inquiries/:id/resolve - Mark inquiry as resolved (protected)
-router.patch("/:id/resolve", requireAuth, resolveInquiry);
+// PATCH /api/inquiries/:id/resolve - Mark inquiry as resolved (SK Official only)
+router.patch("/:id/resolve", requireRole([1]), resolveInquiry);
 
 // POST /api/inquiries/submit - Submit an inquiry (public route)
 router.post("/submit", createInquiry);
