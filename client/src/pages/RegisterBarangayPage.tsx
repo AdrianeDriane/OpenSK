@@ -12,6 +12,7 @@ import {
   User,
   Loader2,
 } from "lucide-react";
+import { AxiosError } from "axios";
 
 import SKLogo from "../assets/icons/sk_logo.png";
 import api from "../api/axios";
@@ -71,7 +72,8 @@ interface RegistrationForm {
 
 export function RegisterBarangayPage() {
   const [barangays, setBarangays] = useState<Barangay[]>([]);
-  const [existingRequest, setExistingRequest] = useState<VerificationRequest | null>(null);
+  const [existingRequest, setExistingRequest] =
+    useState<VerificationRequest | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -185,9 +187,12 @@ export function RegisterBarangayPage() {
 
       toast.success("Registration submitted successfully!");
       setExistingRequest(res.data.request);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const message = err.response?.data?.error || "Something went wrong while submitting.";
+      const axiosError = err as AxiosError<{ error: string }>;
+      const message =
+        axiosError.response?.data?.error ||
+        "Something went wrong while submitting.";
       toast.error(message);
     } finally {
       setIsSubmitting(false);
@@ -411,7 +416,8 @@ export function RegisterBarangayPage() {
                     {/* Valid ID Upload */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Valid Government ID <span className="text-red-500">*</span>
+                        Valid Government ID{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="file"
@@ -446,7 +452,8 @@ export function RegisterBarangayPage() {
                     {/* Supporting Document Type Dropdown */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Supporting Document Type <span className="text-red-500">*</span>
+                        Supporting Document Type{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <select
                         value={form.supportingDocType}
@@ -458,8 +465,12 @@ export function RegisterBarangayPage() {
                         }
                         className="w-full px-4 py-2 border rounded-md focus:ring-[#203972] focus:border-[#203972]"
                       >
-                        <option value="Certificate of Incumbency">Certificate of Incumbency</option>
-                        <option value="Certificate of Proclamation">Certificate of Proclamation</option>
+                        <option value="Certificate of Incumbency">
+                          Certificate of Incumbency
+                        </option>
+                        <option value="Certificate of Proclamation">
+                          Certificate of Proclamation
+                        </option>
                         <option value="Oath of Office">Oath of Office</option>
                       </select>
                     </div>
@@ -467,7 +478,8 @@ export function RegisterBarangayPage() {
                     {/* Supporting Document Upload */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Upload {form.supportingDocType} <span className="text-red-500">*</span>
+                        Upload {form.supportingDocType}{" "}
+                        <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="file"
@@ -534,7 +546,8 @@ export function RegisterBarangayPage() {
                         </p>
                         <p className="font-medium text-gray-900">
                           {form.role} • Barangay{" "}
-                          {barangays.find((b) => b.id === form.barangayId)?.name || "Not selected"}
+                          {barangays.find((b) => b.id === form.barangayId)
+                            ?.name || "Not selected"}
                           , Cebu City
                         </p>
                       </div>

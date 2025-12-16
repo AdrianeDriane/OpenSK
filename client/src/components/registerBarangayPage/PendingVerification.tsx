@@ -31,9 +31,20 @@ export function PendingVerification({ request }: PendingVerificationProps) {
     window.location.href = "/login";
   };
 
-  const statusColors: Record<string, { bg: string; text: string; icon: string }> = {
-    Pending: { bg: "bg-yellow-100", text: "text-yellow-800", icon: "text-yellow-500" },
-    Approved: { bg: "bg-green-100", text: "text-green-800", icon: "text-green-500" },
+  const statusColors: Record<
+    string,
+    { bg: string; text: string; icon: string }
+  > = {
+    Pending: {
+      bg: "bg-yellow-100",
+      text: "text-yellow-800",
+      icon: "text-yellow-500",
+    },
+    Approved: {
+      bg: "bg-green-100",
+      text: "text-green-800",
+      icon: "text-green-500",
+    },
     Rejected: { bg: "bg-red-100", text: "text-red-800", icon: "text-red-500" },
   };
 
@@ -63,7 +74,9 @@ export function PendingVerification({ request }: PendingVerificationProps) {
         className="w-full max-w-lg bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
       >
         {/* Status Banner */}
-        <div className={`${statusStyle.bg} px-6 py-4 flex items-center justify-center gap-3`}>
+        <div
+          className={`${statusStyle.bg} px-6 py-4 flex items-center justify-center gap-3`}
+        >
           <Clock className={`w-6 h-6 ${statusStyle.icon}`} />
           <span className={`text-lg font-semibold ${statusStyle.text}`}>
             Verification {request.status.name}
@@ -106,7 +119,9 @@ export function PendingVerification({ request }: PendingVerificationProps) {
 
               <div className="flex justify-between">
                 <span className="text-gray-500">Email</span>
-                <span className="text-gray-900 font-medium">{request.user.email}</span>
+                <span className="text-gray-900 font-medium">
+                  {request.user.email}
+                </span>
               </div>
 
               <div className="flex justify-between">
