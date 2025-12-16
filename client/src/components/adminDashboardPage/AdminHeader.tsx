@@ -1,4 +1,5 @@
-import { Shield, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
+import SKLogo from "../../assets/icons/sk_logo.png";
 
 interface AdminHeaderProps {
   user: {
@@ -14,8 +15,8 @@ export function AdminHeader({ user, onLogout }: AdminHeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-[#203972] rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-[#203972] rounded-full flex items-center justify-center">
+              <img src={SKLogo} alt="SK Logo" className="w-9 h-9" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-[#203972]">OpenSK Admin</h1>
