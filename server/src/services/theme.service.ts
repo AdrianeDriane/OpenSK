@@ -199,6 +199,29 @@ export const getThemeBySlug = async (
   };
 };
 
+/**
+ * Get theme configuration by barangay ID
+ * Returns the theme config or null if no theme exists
+ */
+export const getThemeByBarangayId = async (
+  barangayId: number
+): Promise<{ config: ThemeConfigPayload | null; isDefault: boolean }> => {
+  await ensureBarangayExists(barangayId);
+
+  const theme = await prisma.theme.findUnique({
+    where: { barangayId },
+    select: {
+      config: true,
+      isDefault: true,
+    },
+  });
+
+  return {
+    config: (theme?.config as ThemeConfigPayload | null) ?? null,
+    isDefault: theme?.isDefault ?? true,
+  };
+};
+
 export const createTheme = async (
   barangayId: number,
   config: ThemeConfigPayload

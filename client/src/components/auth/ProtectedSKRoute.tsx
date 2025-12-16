@@ -62,20 +62,16 @@ export function ProtectedSKRoute({ children }: ProtectedSKRouteProps) {
         // Redirect to theme customization if:
         // 1. No theme exists (hasTheme = false), OR
         // 2. Theme exists but is still the default (isDefaultTheme = true)
+        // BUT: Always allow access to /theme_customization page
         console.log(status);
 
         const needsCustomization = !status.hasTheme || status.isDefaultTheme;
 
-        // If currently on theme_customization page and theme is customized, redirect to dashboard
-        if (
-          !needsCustomization &&
-          location.pathname === "/theme_customization"
-        ) {
-          setRedirectPath("/dashboard");
-        } else if (
-          needsCustomization &&
-          location.pathname !== "/theme_customization"
-        ) {
+        // Always allow access to /theme_customization page
+        if (location.pathname === "/theme_customization") {
+          setRedirectPath(null);
+        } else if (needsCustomization) {
+          // Force redirect to theme customization if theme is not customized
           setRedirectPath("/theme_customization");
         } else {
           setRedirectPath(null);

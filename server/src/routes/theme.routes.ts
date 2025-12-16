@@ -4,12 +4,16 @@ import {
   getThemeBySlugController,
   updateThemeController,
   getThemeStatusController,
+  getThemeByBarangayIdController,
 } from "../controllers/theme.controller";
 
 const router = Router();
 
 // GET /api/themes/slug/:slug - fetch theme by barangay slug (public)
 router.get("/slug/:slug", getThemeBySlugController);
+
+// GET /api/themes/:barangayId - fetch theme config by barangay ID (SK Official only)
+router.get("/:barangayId", requireRole([1]), getThemeByBarangayIdController);
 
 // PUT /api/themes/:barangayId - upsert/update existing theme (SK Official only)
 router.put("/:barangayId", requireRole([1]), updateThemeController);

@@ -6,6 +6,7 @@ import {
   ThemeConfigPayload,
   getThemeBySlug,
   getThemeStatus,
+  getThemeByBarangayId,
 } from "../services/theme.service";
 
 const parseBarangayId = (value: string) => {
@@ -68,6 +69,26 @@ export const getThemeStatusController = async (req: Request, res: Response) => {
   try {
     const status = await getThemeStatus(userId);
     return res.status(200).json(status);
+  } catch (error) {
+    return handleError(res, error);
+  }
+};
+
+// @desc    Get theme configuration by barangay ID
+// @route   GET /api/themes/:barangayId
+// @access  Private (SK Officials only)
+export const getThemeByBarangayIdController = async (
+  req: Request,
+  res: Response
+) => {
+  const barangayId = parseBarangayId(req.params.barangayId);
+  if (!barangayId) {
+    return res.status(400).json({ message: "Invalid barangayId" });
+  }
+
+  try {
+    const result = await getThemeByBarangayId(barangayId);
+    return res.status(200).json(result);
   } catch (error) {
     return handleError(res, error);
   }

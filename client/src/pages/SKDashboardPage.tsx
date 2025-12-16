@@ -6,6 +6,7 @@ import {
   Users,
   MessageSquare,
   TrendingUp,
+  Palette,
 } from "lucide-react";
 import { DashboardHeader } from "../components/skDashboardPage/DashboardHeader";
 import { DashboardCard } from "../components/skDashboardPage/DashboardCard";
@@ -160,6 +161,14 @@ export function SKDashboardPage() {
                 href="/inquiries"
                 variant="accent"
                 delay={0.5}
+              />
+              <DashboardCard
+                title="Customize Theme"
+                description="Personalize your portal's appearance with custom colors, fonts, and styling."
+                icon={Palette}
+                href="/theme_customization"
+                variant="secondary"
+                delay={0.6}
               />
             </div>
           </div>
