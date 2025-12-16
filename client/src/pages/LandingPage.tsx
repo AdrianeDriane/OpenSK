@@ -1,14 +1,57 @@
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Hero } from "../components/landingPage/Hero";
 import { DocumentShowcase } from "../components/landingPage/DocumentShowcase";
 import { FeatureList } from "../components/landingPage/FeatureList";
 import { Footer } from "../components/landingPage/Footer";
+import { BarangayListModal } from "../components/landingPage/BarangayListModal";
 import { useNavigate } from "react-router-dom";
+import { LogOut, User } from "lucide-react";
 
 import SKLogo from "../assets/icons/sk_logo.png";
 
+// Helper to check if user is logged in and get basic info
+const getAuthInfo = () => {
+  const token = localStorage.getItem("auth_token");
+  if (!token) return null;
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return {
+      firstName: payload.firstName || "",
+      lastName: payload.lastName || "",
+      roleId: payload.roleId,
+    };
+  } catch {
+    return null;
+  }
+};
+
 export function LandingPage() {
   const navigate = useNavigate();
+  const [isBarangayModalOpen, setIsBarangayModalOpen] = useState(false);
+  const authInfo = getAuthInfo();
+  const isLoggedIn = authInfo !== null;
+
+  const scrollToSection = useCallback((sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    window.location.reload();
+  };
+
+  const handleDashboardClick = () => {
+    if (authInfo?.roleId === 2) {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/dashboard");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans text-gray-900">
@@ -16,7 +59,7 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center">
             <div className="w-10.5 h-10.5 bg-[#203972] rounded-full flex items-center justify-center mr-2">
-              <img src={SKLogo} className="w-10 h-10" />
+              <img src={SKLogo} className="w-10 h-10" alt="SK Logo" />
             </div>
 
             <span className="text-xl font-bold text-[#203972] font-serif tracking-tight">
@@ -24,58 +67,84 @@ export function LandingPage() {
             </span>
           </div>
           <nav className="hidden md:flex space-x-8 absolute left-1/2 -translate-x-1/2">
-            <a
-              href="#"
+            <button
+              onClick={() => scrollToSection("hero-section")}
               className="text-gray-600 hover:text-[#203972] font-medium transition-colors"
             >
               Home
-            </a>
-            <a
-              href="#features"
+            </button>
+            <button
+              onClick={() => scrollToSection("features")}
               className="text-gray-600 hover:text-[#203972] font-medium transition-colors"
             >
               Features
-            </a>
-            <a
-              href="#visit"
+            </button>
+            <button
+              onClick={() => setIsBarangayModalOpen(true)}
               className="text-gray-600 hover:text-[#203972] font-medium transition-colors"
             >
               Visit
-            </a>
+            </button>
           </nav>
 
           <div className="flex items-center space-x-6">
-            <motion.button
-              whileHover={{
-                scale: 1.05,
-              }}
-              whileTap={{
-                scale: 0.95,
-              }}
-              onClick={() => navigate("/login")}
-              className="text-[#203972] font-medium hover:text-[#1a2e5a] transition-colors cursor-pointer"
-            >
-              Login
-            </motion.button>
-            <motion.button
-              whileHover={{
-                scale: 1.05,
-              }}
-              whileTap={{
-                scale: 0.95,
-              }}
-              onClick={() => navigate("/register")}
-              className="bg-[#203972] text-white px-5 py-2 rounded-md font-medium hover:bg-[#1a2e5a] transition-colors shadow-sm cursor-pointer"
-            >
-              Register Barangay
-            </motion.button>
+            {isLoggedIn ? (
+              <>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleDashboardClick}
+                  className="flex items-center gap-2 text-[#203972] font-medium hover:text-[#1a2e5a] transition-colors cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  <span>
+                    {authInfo.firstName} {authInfo.lastName}
+                  </span>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-[#db1d34] hover:bg-gray-100 rounded-md font-medium transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </motion.button>
+              </>
+            ) : (
+              <>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate("/login")}
+                  className="text-[#203972] font-medium hover:text-[#1a2e5a] transition-colors cursor-pointer"
+                >
+                  Login
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate("/register")}
+                  className="bg-[#203972] text-white px-5 py-2 rounded-md font-medium hover:bg-[#1a2e5a] transition-colors shadow-sm cursor-pointer"
+                >
+                  Register Barangay
+                </motion.button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
       <main className="grow">
-        <Hero />
-        <DocumentShowcase />
+        <div id="hero-section">
+          <Hero
+            onVisitClick={() => setIsBarangayModalOpen(true)}
+            onLearnMoreClick={() => scrollToSection("features")}
+          />
+        </div>
+        <DocumentShowcase
+          onViewSampleClick={() => setIsBarangayModalOpen(true)}
+        />
         <FeatureList />
 
         {/* Call to Action Section */}
@@ -159,6 +228,7 @@ export function LandingPage() {
               whileTap={{
                 scale: 0.95,
               }}
+              onClick={() => navigate("/register")}
               className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-md text-[#203972] bg-white hover:bg-gray-50 transition-colors shadow-lg cursor-pointer"
             >
               Create Official Account
@@ -168,6 +238,12 @@ export function LandingPage() {
       </main>
 
       <Footer />
+
+      {/* Barangay List Modal */}
+      <BarangayListModal
+        isOpen={isBarangayModalOpen}
+        onClose={() => setIsBarangayModalOpen(false)}
+      />
     </div>
   );
 }

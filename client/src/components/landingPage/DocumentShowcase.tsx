@@ -9,8 +9,8 @@ import {
 
 const documents = [
   {
-    title: "SALN",
-    description: "Statement of Assets, Liabilities, and Net Worth",
+    title: "CBYDP",
+    description: "Comprehensive Barangay Youth Development Plan",
     icon: FileText,
   },
   {
@@ -19,8 +19,8 @@ const documents = [
     icon: PieChart,
   },
   {
-    title: "Projects & Programs",
-    description: "Detailed reports on ongoing and completed initiatives",
+    title: "Accomplishment Reports",
+    description: "Detailed reports on completed programs and initiatives",
     icon: ClipboardList,
   },
   {
@@ -29,6 +29,10 @@ const documents = [
     icon: ScrollText,
   },
 ];
+
+interface DocumentShowcaseProps {
+  onViewSampleClick?: () => void;
+}
 
 const containerVariants = {
   hidden: {
@@ -56,7 +60,7 @@ const cardVariants = {
   },
 };
 
-export function DocumentShowcase() {
+export function DocumentShowcase({ onViewSampleClick }: DocumentShowcaseProps) {
   return (
     <section className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -130,10 +134,13 @@ export function DocumentShowcase() {
               <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                 {doc.description}
               </p>
-              <div className="flex items-center text-[#203972] text-sm font-medium group-hover:text-[#db1d34] transition-colors cursor-pointer">
+              <button
+                onClick={onViewSampleClick}
+                className="flex items-center text-[#203972] text-sm font-medium group-hover:text-[#db1d34] transition-colors cursor-pointer"
+              >
                 View Sample
                 <ArrowRight className="w-4 h-4 ml-1" />
-              </div>
+              </button>
             </motion.div>
           ))}
         </motion.div>

@@ -1,7 +1,12 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, ChevronRight, Building2 } from "lucide-react";
 
-export function Hero() {
+interface HeroProps {
+  onVisitClick?: () => void;
+  onLearnMoreClick?: () => void;
+}
+
+export function Hero({ onVisitClick, onLearnMoreClick }: HeroProps) {
   return (
     <section className="relative bg-white overflow-hidden">
       {/* Background Pattern */}
@@ -117,6 +122,7 @@ export function Hero() {
               whileTap={{
                 scale: 0.95,
               }}
+              onClick={onVisitClick}
               className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-white bg-[#db1d34] hover:bg-[#b9182b] transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#db1d34] cursor-pointer"
             >
               Visit Barangay Portal
@@ -129,6 +135,7 @@ export function Hero() {
               whileTap={{
                 scale: 0.95,
               }}
+              onClick={onLearnMoreClick}
               className="inline-flex items-center justify-center px-8 py-4 border-2 border-[#203972] text-base font-medium rounded-md text-[#203972] bg-transparent hover:bg-blue-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#203972] cursor-pointer"
             >
               Learn More
