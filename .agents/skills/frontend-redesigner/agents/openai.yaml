@@ -1,0 +1,4 @@
+interface:
+  display_name: "Frontend Redesigner"
+  short_description: "Improve layout without changing theme or behavior"
+  default_prompt: "Use $frontend-redesigner to improve this UI layout while preserving its theme, fonts, and functionality."
