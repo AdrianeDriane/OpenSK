@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import path from "path";
 import { randomUUID } from "crypto";
 import { prisma } from "../db/prisma";
-import { uploadImageToS3 } from "../utils/s3";
+import {
+  deleteFromLocalStorage,
+  uploadFileToLocalStorage,
+} from "../utils/local-storage";
 
 // Document type IDs (matching seed data)
 const DOCUMENT_TYPE_IDS: Record<string, number> = {
@@ -64,14 +67,14 @@ export const submitVerificationRequest = async (
       return res.status(400).json({ error: "Supporting document is required" });
     }
 
-    // Upload documents to S3
+    // Upload documents to local storage
     const uploadDocument = async (
       file: Express.Multer.File,
       typeId: number
     ) => {
       const extension = path.extname(file.originalname).toLowerCase();
       const key = `verification-docs/${userId}/${Date.now()}-${randomUUID()}${extension}`;
-      const fileUrl = await uploadImageToS3(key, file);
+      const fileUrl = await uploadFileToLocalStorage(key, file);
       return { fileUrl, typeId, key };
     };
 
@@ -209,6 +212,7 @@ export const resubmitVerificationRequest = async (
         statusId: 3, // Rejected
       },
       orderBy: { submittedAt: "desc" },
+      include: { documents: true },
     });
 
     if (!existingRequest) {
@@ -233,14 +237,14 @@ export const resubmitVerificationRequest = async (
       return res.status(400).json({ error: "Supporting document is required" });
     }
 
-    // Upload documents to S3
+    // Upload documents to local storage
     const uploadDocument = async (
       file: Express.Multer.File,
       typeId: number
     ) => {
       const extension = path.extname(file.originalname).toLowerCase();
       const key = `verification-docs/${userId}/${Date.now()}-${randomUUID()}${extension}`;
-      const fileUrl = await uploadImageToS3(key, file);
+      const fileUrl = await uploadFileToLocalStorage(key, file);
       return { fileUrl, typeId, key };
     };
 
@@ -293,6 +297,16 @@ export const resubmitVerificationRequest = async (
 
       return request;
     });
+
+    await Promise.all(
+      existingRequest.documents.map(async (document) => {
+        try {
+          await deleteFromLocalStorage(document.fileUrl);
+        } catch (deleteError) {
+          console.warn("Failed to delete replaced verification file:", deleteError);
+        }
+      })
+    );
 
     return res.status(200).json({
       message: "Verification request resubmitted successfully",

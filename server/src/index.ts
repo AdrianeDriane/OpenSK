@@ -4,6 +4,11 @@ import passport from "passport"; // the actual passport instance
 import express from "express";
 import cors from "cors";
 import { ENV } from "./config/env";
+import {
+  ensureUploadsDir,
+  getUploadsDir,
+  getUploadRoute,
+} from "./utils/local-storage";
 import authRoutes from "./routes/auth.routes";
 import barangayRoutes from "./routes/barangay.routes";
 import verificationBypassRoutes from "./routes/verification-bypass.routes";
@@ -26,6 +31,8 @@ app.use(passport.initialize());
 
 const port = Number(ENV.PORT);
 
+app.use(getUploadRoute(), express.static(getUploadsDir()));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/barangays", barangayRoutes);
 app.use("/api/verify", verificationBypassRoutes);
@@ -38,6 +45,15 @@ app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
-app.listen(port, () => {
-  console.log(`🚀 OpenSK server running on http://localhost:${port}`);
+async function startServer() {
+  await ensureUploadsDir();
+
+  app.listen(port, () => {
+    console.log(`🚀 OpenSK server running on http://localhost:${port}`);
+  });
+}
+
+startServer().catch((error) => {
+  console.error("Failed to initialize OpenSK server:", error);
+  process.exit(1);
 });

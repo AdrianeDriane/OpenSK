@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import path from "path";
 import { randomUUID } from "crypto";
 import { prisma } from "../db/prisma";
-import { uploadImageToS3, deleteFromS3 } from "../utils/s3";
+import {
+  deleteFromLocalStorage,
+  uploadFileToLocalStorage,
+} from "../utils/local-storage";
 import { SKOfficialRole } from "../../prisma/generated/enums";
 
 interface AuthenticatedRequest extends Request {
@@ -76,7 +79,7 @@ export const createOfficial = async (
 
     const extension = path.extname(file.originalname).toLowerCase();
     const key = `sk-officials/${barangayId}/${Date.now()}-${randomUUID()}${extension}`;
-    const imageUrl = await uploadImageToS3(key, file);
+    const imageUrl = await uploadFileToLocalStorage(key, file);
 
     const official = await prisma.sKOfficial.create({
       data: {
@@ -123,9 +126,9 @@ export const deleteOfficial = async (
 
     if (official.imageKey) {
       try {
-        await deleteFromS3(official.imageKey);
+        await deleteFromLocalStorage(official.imageKey);
       } catch (deleteError) {
-        console.error("Failed to delete image from S3:", deleteError);
+        console.error("Failed to delete local official image:", deleteError);
         // Continue with deletion even if image cleanup fails
       }
     }

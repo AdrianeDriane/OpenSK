@@ -1,6 +1,10 @@
 import { Request, Response } from "express";
 import { prisma } from "../db/prisma";
-import { uploadImageToS3, deleteFromS3 } from "../utils/s3";
+import {
+  deleteFromLocalStorage,
+  extractLocalStorageKey,
+  uploadFileToLocalStorage,
+} from "../utils/local-storage";
 import path from "path";
 
 export const listDocuments = async (req: Request, res: Response) => {
@@ -48,7 +52,7 @@ export const createDocument = async (req: Request, res: Response) => {
       .basename(file.originalname)
       .replace(/[^a-zA-Z0-9._-]/g, "_");
     const key = `documents/${user.barangayId}/${Date.now()}_${safeFileName}`;
-    const fileUrl = await uploadImageToS3(key, file);
+    const fileUrl = await uploadFileToLocalStorage(key, file);
 
     const created = await prisma.document.create({
       data: {
@@ -76,18 +80,15 @@ export const deleteDocument = async (req: Request, res: Response) => {
     const doc = await prisma.document.findUnique({ where: { id: Number(id) } });
     if (!doc) return res.status(404).json({ message: "Document not found" });
 
-    // Try to infer S3 key from URL
-    const keyMatch = doc.fileUrl.match(/https?:\/\/[^/]+\/.+\/(.+)$/);
-    let key: string | null = null;
-    if (keyMatch) {
-      // full path after bucket domain
-      key = doc.fileUrl.split(".amazonaws.com/")[1] || null;
-    }
+    const key = extractLocalStorageKey(doc.fileUrl);
     if (key) {
       try {
-        await deleteFromS3(key);
+        await deleteFromLocalStorage(key);
       } catch (e) {
-        console.warn("S3 delete failed, proceeding to remove DB record", e);
+        console.warn(
+          "Local file delete failed, proceeding to remove DB record",
+          e
+        );
       }
     }
 
